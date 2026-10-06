@@ -95,4 +95,39 @@ public class RecoveryAttemptsController : ControllerBase
     {
         return _context.RecoveryAttempt.Any(e => e.Id == id);
     }
+
+    [HttpPut("{id}/complete")]
+    public async Task<ActionResult<RecoveryAttempt>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
+    {
+        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
+        if (recoveryattempt == null)
+        {
+            return NotFound();
+        }
+        try
+        {
+            recoveryattempt.Complete(isSuccessful, DateTime.UtcNow);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+        await _context.SaveChangesAsync();
+        return recoveryattempt;
+    }
+
+    [HttpGet("{id}/duration")]
+    public async Task<IActionResult> GetRecoveryAttemptDuration(int id)
+    {
+        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
+        if (recoveryattempt == null)
+        {
+            return NotFound();
+        }
+        return Ok(new{durationSeconds = recoveryattempt.GetDurationSeconds()});
+    }
 }
