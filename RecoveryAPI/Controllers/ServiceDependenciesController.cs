@@ -43,6 +43,15 @@ public class ServiceDependenciesController : ControllerBase
             return BadRequest();
         }
 
+        try
+        {
+            servicedependency.Validate();
+        }
+        catch(InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+
         _context.Entry(servicedependency).State = EntityState.Modified;
 
         try
@@ -69,6 +78,14 @@ public class ServiceDependenciesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<ServiceDependency>> PostServiceDependency(ServiceDependency servicedependency)
     {
+        try
+        {
+            servicedependency.Validate();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
         _context.ServiceDependency.Add(servicedependency);
         await _context.SaveChangesAsync();
 
