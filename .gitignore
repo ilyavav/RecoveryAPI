@@ -400,3 +400,5 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 RecoveryAPI/RecoveryAPIContext.db
+RecoveryAPI/RecoveryAPIContext.db-shm
+RecoveryAPI/RecoveryAPIContext.db-wal

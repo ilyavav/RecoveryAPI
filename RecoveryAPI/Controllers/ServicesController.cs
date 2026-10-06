@@ -95,4 +95,61 @@ public class ServicesController : ControllerBase
     {
         return _context.Service.Any(e => e.Id == id);
     }
+
+    [HttpPut("{id}/fail")]
+    public async Task<ActionResult<Service>> MakeServiceFailed(int id)
+    {
+        var service = await _context.Service.FindAsync(id);
+        if (service == null)
+        {
+            return NotFound();
+        }
+        service.MakeFailed();
+        await _context.SaveChangesAsync();
+        return service;
+    }
+
+    [HttpPut("{id}/recovering")]
+    public async Task<ActionResult<Service>> MakeServiceRecovering(int id)
+    {
+        var service = await _context.Service.FindAsync(id);
+        if (service == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            service.MakeRecovering();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
+        await _context.SaveChangesAsync();
+        return service;
+    }
+
+    [HttpPut("{id}/recovered")]
+    public async Task<ActionResult<Service>> MakeServiceRecovered(int id)
+    {
+        var service = await _context.Service.FindAsync(id);
+        if (service == null)
+        {
+            return NotFound();
+        }
+
+        try
+        {
+            service.MakeRecovered();
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
+
+        await _context.SaveChangesAsync();
+        return service;
+    }
 }
