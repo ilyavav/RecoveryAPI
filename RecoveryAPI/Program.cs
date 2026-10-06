@@ -1,4 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("RecoveryAPIContext") ?? throw new InvalidOperationException("Connection string 'RecoveryAPIContext' not found.");
+
+builder.Services.AddDbContext<RecoveryAPIContext>(options => options.UseSqlite(connectionString));
 
 // Add services to the container.
 
