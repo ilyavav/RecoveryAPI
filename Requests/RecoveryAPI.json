@@ -1,0 +1,870 @@
+{
+  "info": {
+    "name": "RecoveryAPI",
+    "description": null,
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Services",
+      "item": [
+        {
+          "name": "Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Service",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo Database\",\n  \"description\": \"Database service for demonstration\",\n  \"criticality\": 5,\n  \"status\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Service by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Update service",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2,\n  \"name\": \"Demo API Updated\",\n  \"description\": \"Updated service description\",\n  \"criticality\": 4,\n  \"status\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Fail service",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/2/fail",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "2",
+                "fail"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Start recovery service",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/2/recovering",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "2",
+                "recovering"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Finish recovery service",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/2/recovered",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "2",
+                "recovered"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Service",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Services/4",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Services",
+                "4"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dependences",
+      "item": [
+        {
+          "name": "Dependenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/ServiceDependencies",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "ServiceDependencies"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Dependency",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/ServiceDependencies",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "ServiceDependencies"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": 2,\n  \"dependsOnServiceId\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update dependency",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/ServiceDependencies/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "ServiceDependencies",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2,\n  \"serviceId\": 3,\n  \"dependsOnServiceId\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Dependency by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/ServiceDependencies/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "ServiceDependencies",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Dependency",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/ServiceDependencies/1",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "ServiceDependencies",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "RecoveryAttempts",
+      "item": [
+        {
+          "name": "Recovery attempts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Recovery attempt",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceId\": 3,\n  \"startedAt\": \"2026-10-07T13:00:00Z\",\n  \"finishedAt\": null,\n  \"isSuccessful\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Update recovery attempt",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 2,\n  \"serviceId\": 3,\n  \"startedAt\": \"2026-10-07T12:59:00Z\",\n  \"finishedAt\": null,\n  \"isSuccessful\": null\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Recovery attempt by id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts/2",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts",
+                "2"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Recovery duration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts/1/duration",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts",
+                "1",
+                "duration"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Complete recovery attempt",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts/2/complete?isSuccessful=true",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts",
+                "2",
+                "complete"
+              ],
+              "query": [
+                {
+                  "key": "isSuccessful",
+                  "value": "true"
+                }
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Recovery attempt",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6ImFkbWluIiwibmJmIjoxNzkxMzgxNDcxLCJleHAiOjE4MjI5MTc0NzEsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.S8V4XGGWGUx1DMvuXrNVaIp0Qi5SZTeiasx-azBFHM0",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/RecoveryAttempts/1",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "RecoveryAttempts",
+                "1"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reports",
+      "item": [
+        {
+          "name": "Dependencies report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Reports/dependencies",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Reports",
+                "dependencies"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Recovery history",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Reports/recoveryHistory/3",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Reports",
+                "recoveryHistory",
+                "3"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Recovery statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkxMzc4MjE3LCJleHAiOjE4MjI5MTQyMTcsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.GiqSQAXFFgNeJMKBCvr7v_0Fiy1wpqh9WqxfWKBjjzs",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Reports/recoveryStatistics",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Reports",
+                "recoveryStatistics"
+              ],
+              "query": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Guest Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "",
+        "url": {
+          "raw": "https://localhost:7119/api/Auth/token",
+          "protocol": "https",
+          "host": [
+            "localhost:7119"
+          ],
+          "path": [
+            "api",
+            "Auth",
+            "token"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    },
+    {
+      "name": "Admin Token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "description": "",
+        "url": {
+          "raw": "https://localhost:7119/api/Auth/token/secret",
+          "protocol": "https",
+          "host": [
+            "localhost:7119"
+          ],
+          "path": [
+            "api",
+            "Auth",
+            "token",
+            "secret"
+          ],
+          "query": [],
+          "variable": []
+        }
+      }
+    }
+  ],
+  "variable": []
+}
