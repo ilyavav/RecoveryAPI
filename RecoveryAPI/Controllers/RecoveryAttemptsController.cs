@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class RecoveryAttemptsController : ControllerBase
 {
     private readonly RecoveryAPIContext _context;
@@ -36,6 +38,7 @@ public class RecoveryAttemptsController : ControllerBase
     // PUT: api/RecoveryAttempt/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> PutRecoveryAttempt(int? id, RecoveryAttempt recoveryattempt)
     {
         if (id != recoveryattempt.Id)
@@ -67,6 +70,7 @@ public class RecoveryAttemptsController : ControllerBase
     // POST: api/RecoveryAttempt
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<RecoveryAttempt>> PostRecoveryAttempt(RecoveryAttempt recoveryattempt)
     {
         _context.RecoveryAttempt.Add(recoveryattempt);
@@ -77,6 +81,7 @@ public class RecoveryAttemptsController : ControllerBase
 
     // DELETE: api/RecoveryAttempt/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteRecoveryAttempt(int? id)
     {
         var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
@@ -97,6 +102,7 @@ public class RecoveryAttemptsController : ControllerBase
     }
 
     [HttpPut("{id}/complete")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<RecoveryAttempt>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
     {
         var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);

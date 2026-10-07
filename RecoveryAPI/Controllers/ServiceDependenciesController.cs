@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ServiceDependenciesController : ControllerBase
 {
     private readonly RecoveryAPIContext _context;
@@ -36,6 +38,7 @@ public class ServiceDependenciesController : ControllerBase
     // PUT: api/ServiceDependency/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> PutServiceDependency(int? id, ServiceDependency servicedependency)
     {
         if (id != servicedependency.Id)
@@ -76,6 +79,7 @@ public class ServiceDependenciesController : ControllerBase
     // POST: api/ServiceDependency
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<ServiceDependency>> PostServiceDependency(ServiceDependency servicedependency)
     {
         try
@@ -94,6 +98,7 @@ public class ServiceDependenciesController : ControllerBase
 
     // DELETE: api/ServiceDependency/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteServiceDependency(int? id)
     {
         var servicedependency = await _context.ServiceDependency.FindAsync(id);

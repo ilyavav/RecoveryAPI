@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class ServicesController : ControllerBase
 {
     private readonly RecoveryAPIContext _context;
@@ -36,6 +38,7 @@ public class ServicesController : ControllerBase
     // PUT: api/Service/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> PutService(int? id, Service service)
     {
         if (id != service.Id)
@@ -67,6 +70,7 @@ public class ServicesController : ControllerBase
     // POST: api/Service
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> PostService(Service service)
     {
         _context.Service.Add(service);
@@ -77,6 +81,7 @@ public class ServicesController : ControllerBase
 
     // DELETE: api/Service/5
     [HttpDelete("{id}")]
+    [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteService(int? id)
     {
         var service = await _context.Service.FindAsync(id);
@@ -97,6 +102,7 @@ public class ServicesController : ControllerBase
     }
 
     [HttpPut("{id}/fail")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceFailed(int id)
     {
         var service = await _context.Service.FindAsync(id);
@@ -110,6 +116,7 @@ public class ServicesController : ControllerBase
     }
 
     [HttpPut("{id}/recovering")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceRecovering(int id)
     {
         var service = await _context.Service.FindAsync(id);
@@ -132,6 +139,7 @@ public class ServicesController : ControllerBase
     }
 
     [HttpPut("{id}/recovered")]
+    [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceRecovered(int id)
     {
         var service = await _context.Service.FindAsync(id);
