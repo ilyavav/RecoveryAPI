@@ -25,7 +25,7 @@ public class RecoveryAPIContext(
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<RecoveryAttempt>()
-            .HasOne<Service>()
+            .HasOne(attempt => attempt.Service)
             .WithMany()
             .HasForeignKey(attempt => attempt.ServiceId)
             .OnDelete(DeleteBehavior.Restrict);

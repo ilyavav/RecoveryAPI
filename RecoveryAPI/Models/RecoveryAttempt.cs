@@ -1,9 +1,13 @@
-﻿namespace RecoveryAPI.Models
+﻿using System.Text.Json.Serialization;
+
+namespace RecoveryAPI.Models
 {
     public class RecoveryAttempt
     {
         public int Id { get;set; }
         public int ServiceId { get; set; }
+        [JsonIgnore]
+        public Service? Service { get; set; }
         public DateTime StartedAt { get; set; }
         public DateTime? FinishedAt { get; set; }
         public bool? IsSuccessful { get; set; }
