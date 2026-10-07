@@ -38,7 +38,7 @@ namespace RecoveryAPI.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("RecoveryAttempt");
+                    b.ToTable("RecoveryAttempt", (string)null);
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.Service", b =>
@@ -62,7 +62,7 @@ namespace RecoveryAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Service");
+                    b.ToTable("Service", (string)null);
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.ServiceDependency", b =>
@@ -83,7 +83,7 @@ namespace RecoveryAPI.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("ServiceDependency");
+                    b.ToTable("ServiceDependency", (string)null);
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.RecoveryAttempt", b =>

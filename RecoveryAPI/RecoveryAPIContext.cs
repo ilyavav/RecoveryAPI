@@ -1,12 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
 
-public class RecoveryAPIContext(DbContextOptions<RecoveryAPIContext> options) : DbContext(options)
+public class RecoveryAPIContext(
+    DbContextOptions<RecoveryAPIContext> options) : DbContext(options)
 {
     public DbSet<Service> Service { get; set; } = default!;
-
     public DbSet<ServiceDependency> ServiceDependency { get; set; } = default!;
-
     public DbSet<RecoveryAttempt> RecoveryAttempt { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -14,13 +13,13 @@ public class RecoveryAPIContext(DbContextOptions<RecoveryAPIContext> options) : 
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<ServiceDependency>()
-            .HasOne<Service>()
+            .HasOne(dependency => dependency.Service)
             .WithMany()
             .HasForeignKey(dependency => dependency.ServiceId)
             .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<ServiceDependency>()
-            .HasOne<Service>()
+            .HasOne(dependency => dependency.DependsOnService)
             .WithMany()
             .HasForeignKey(dependency => dependency.DependsOnServiceId)
             .OnDelete(DeleteBehavior.Restrict);
