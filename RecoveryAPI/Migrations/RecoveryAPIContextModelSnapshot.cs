@@ -38,7 +38,7 @@ namespace RecoveryAPI.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("RecoveryAttempt", (string)null);
+                    b.ToTable("RecoveryAttempt");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.Service", b =>
@@ -53,6 +53,9 @@ namespace RecoveryAPI.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<double>("EstimatedRecoverySeconds")
+                        .HasColumnType("REAL");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -62,7 +65,7 @@ namespace RecoveryAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Service", (string)null);
+                    b.ToTable("Service");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.ServiceDependency", b =>
@@ -83,31 +86,37 @@ namespace RecoveryAPI.Migrations
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("ServiceDependency", (string)null);
+                    b.ToTable("ServiceDependency");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.RecoveryAttempt", b =>
                 {
-                    b.HasOne("RecoveryAPI.Models.Service", null)
+                    b.HasOne("RecoveryAPI.Models.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Service");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.ServiceDependency", b =>
                 {
-                    b.HasOne("RecoveryAPI.Models.Service", null)
+                    b.HasOne("RecoveryAPI.Models.Service", "DependsOnService")
                         .WithMany()
                         .HasForeignKey("DependsOnServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RecoveryAPI.Models.Service", null)
+                    b.HasOne("RecoveryAPI.Models.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("DependsOnService");
+
+                    b.Navigation("Service");
                 });
 #pragma warning restore 612, 618
         }

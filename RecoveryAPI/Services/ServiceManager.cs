@@ -42,6 +42,7 @@ namespace RecoveryAPI.Services
             existingService.Name = service.Name;
             existingService.Description = service.Description;
             existingService.Criticality = service.Criticality;
+            existingService.EstimatedRecoverySeconds = service.EstimatedRecoverySeconds;
             existingService.Status = service.Status;
 
             await _context.SaveChangesAsync();

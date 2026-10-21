@@ -5,14 +5,13 @@ namespace RecoveryAPI.Models
     public class Service
     {
         public int Id { get; set; }
-
         [Required]
         public string Name { get; set; } = string.Empty;
-
         public string? Description { get; set; }
-
         [Range(1, 5)]
         public int Criticality { get; set; }
+        [Range(0.0, double.MaxValue, MinimumIsExclusive = true, ErrorMessage = "Estimated recovery time must be greater than zero.")]
+        public double EstimatedRecoverySeconds { get; set; }
 
         public ServiceStatus Status { get; set; }
 
