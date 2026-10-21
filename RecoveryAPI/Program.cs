@@ -11,6 +11,7 @@ builder.Services.AddDbContext<RecoveryAPIContext>(options => options.UseSqlite(c
 builder.Services.AddScoped<ServiceManager>();
 builder.Services.AddScoped<ServiceDependencyManager>();
 builder.Services.AddScoped<RecoveryAttemptManager>();
+builder.Services.AddScoped<ReportManager>();
 // Add services to the container.
 
 builder.Services.AddControllers();

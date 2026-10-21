@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyModel;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using RecoveryAPI.Services;
 
 namespace RecoveryAPI.Controllers
 {
@@ -12,23 +9,17 @@ namespace RecoveryAPI.Controllers
     [Authorize]
     public class ReportsController : ControllerBase
     {
-        private readonly RecoveryAPIContext _context;
-        public ReportsController(RecoveryAPIContext context)
+        private readonly ReportManager _reportManager;
+
+        public ReportsController(ReportManager reportManager)
         {
-            _context = context;
+            _reportManager = reportManager;
         }
 
         [HttpGet("dependencies")]
         public async Task<IActionResult> GetDependenciesReport()
         {
-            var report = await _context.ServiceDependency.Select(dependency => new
-                {
-                    Id = dependency.Id,
-                    ServiceId = dependency.ServiceId,
-                    ServiceName = dependency.Service!.Name,
-                    DependsOnServiceId = dependency.DependsOnServiceId,
-                    DependsOnServiceName = dependency.DependsOnService!.Name
-                }).ToListAsync();
+            var report = await _reportManager.GetDependenciesAsync();
 
             return Ok(report);
         }
@@ -36,15 +27,7 @@ namespace RecoveryAPI.Controllers
         [HttpGet("recoveryHistory/{serviceId}")]
         public async Task<IActionResult> GetRecoveryAttemptsReport(int serviceId)
         {
-            var report = await _context.RecoveryAttempt.Where(attempt => attempt.ServiceId == serviceId).Select(attempt => new
-            {
-                Id = attempt.Id,
-                ServiceId = attempt.ServiceId,
-                ServiceName = attempt.Service!.Name,
-                StartedAt = attempt.StartedAt,
-                FinishedAt = attempt.FinishedAt,
-                IsSuccessful = attempt.IsSuccessful
-            }).ToListAsync();
+            var report = await _reportManager.GetRecoveryHistoryAsync(serviceId);
 
             return Ok(report);
         }
@@ -52,17 +35,9 @@ namespace RecoveryAPI.Controllers
         [HttpGet("recoveryStatistics")]
         public async Task<IActionResult> GetRecoveryStatistics()
         {
-            var report = await _context.Service.Select(service => new
-            {
-                ServiceId = service.Id,
-                ServiceName = service.Name,
-                AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id),
-                SuccessfulCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == true),
-                FailedCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == false)
-            }).ToListAsync();
+            var report = await _reportManager.GetRecoveryStatisticsAsync();
 
             return Ok(report);
         }
-
     }
 }
