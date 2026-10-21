@@ -12,12 +12,14 @@ namespace RecoveryAPI.Models
         [JsonIgnore]
         public Service? DependsOnService { get; set; }
 
-        public void Validate()
+        public bool Validate()
         {
             if (ServiceId == DependsOnServiceId)
             {
-                throw new InvalidOperationException("A service cannot depend on itself.");
+                return false;
             }
+
+            return true;
         }
     }
 }

@@ -9,6 +9,7 @@ var connectionString = builder.Configuration.GetConnectionString("RecoveryAPICon
 
 builder.Services.AddDbContext<RecoveryAPIContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ServiceManager>();
+builder.Services.AddScoped<ServiceDependencyManager>();
 // Add services to the container.
 
 builder.Services.AddControllers();
