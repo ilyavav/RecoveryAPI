@@ -4,7 +4,7 @@ namespace RecoveryAPI.Models
 {
     public class RecoveryAttempt
     {
-        public int Id { get;set; }
+        public int Id { get; set; }
         public int ServiceId { get; set; }
         [JsonIgnore]
         public Service? Service { get; set; }
@@ -12,18 +12,22 @@ namespace RecoveryAPI.Models
         public DateTime? FinishedAt { get; set; }
         public bool? IsSuccessful { get; set; }
 
-        public void Complete(bool isSuccessful, DateTime finishedAt)
+        public RecoveryCompletionResult Complete(bool isSuccessful, DateTime finishedAt)
         {
             if (FinishedAt != null)
             {
-                throw new InvalidOperationException("Recovery attempt is already completed.");
+                return RecoveryCompletionResult.AlreadyCompleted;
             }
+
             if (finishedAt < StartedAt)
             {
-                throw new ArgumentException("Finish time cannot be earlier than start time.");
+                return RecoveryCompletionResult.InvalidFinishTime;
             }
+
             FinishedAt = finishedAt;
             IsSuccessful = isSuccessful;
+
+            return RecoveryCompletionResult.Completed;
         }
 
         public double? GetDurationSeconds()
@@ -37,5 +41,13 @@ namespace RecoveryAPI.Models
                 return (FinishedAt.Value - StartedAt).TotalSeconds;
             }
         }
+    }
+
+    public enum RecoveryCompletionResult
+    {
+        None = 0,
+        Completed = 1,
+        AlreadyCompleted = 2,
+        InvalidFinishTime = 3
     }
 }

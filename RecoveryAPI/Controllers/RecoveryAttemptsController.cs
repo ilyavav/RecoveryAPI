@@ -1,31 +1,32 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using RecoveryAPI.Services;
 
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
 public class RecoveryAttemptsController : ControllerBase
 {
-    private readonly RecoveryAPIContext _context;
-    public RecoveryAttemptsController(RecoveryAPIContext context)
+    private readonly RecoveryAttemptManager _attemptManager;
+
+    public RecoveryAttemptsController(RecoveryAttemptManager attemptManager)
     {
-        _context = context;
+        _attemptManager = attemptManager;
     }
 
     // GET: api/RecoveryAttempt
     [HttpGet]
     public async Task<ActionResult<IEnumerable<RecoveryAttempt>>> GetRecoveryAttempt()
     {
-        return await _context.RecoveryAttempt.ToListAsync();
+        return await _attemptManager.GetAttemptsAsync();
     }
 
     // GET: api/RecoveryAttempt/5
     [HttpGet("{id}")]
     public async Task<ActionResult<RecoveryAttempt>> GetRecoveryAttempt(int id)
     {
-        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
+        var recoveryattempt = await _attemptManager.GetAttemptAsync(id);
 
         if (recoveryattempt == null)
         {
@@ -39,29 +40,23 @@ public class RecoveryAttemptsController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> PutRecoveryAttempt(int? id, RecoveryAttempt recoveryattempt)
+    public async Task<IActionResult> PutRecoveryAttempt(int id, RecoveryAttempt recoveryattempt)
     {
         if (id != recoveryattempt.Id)
         {
             return BadRequest();
         }
 
-        _context.Entry(recoveryattempt).State = EntityState.Modified;
+        var result = await _attemptManager.UpdateAttemptAsync(recoveryattempt);
 
-        try
+        if (!result.Found)
         {
-            await _context.SaveChangesAsync();
+            return NotFound();
         }
-        catch (DbUpdateConcurrencyException)
+
+        if (result.Error != null)
         {
-            if (!RecoveryAttemptExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return BadRequest(result.Error);
         }
 
         return NoContent();
@@ -73,67 +68,65 @@ public class RecoveryAttemptsController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<RecoveryAttempt>> PostRecoveryAttempt(RecoveryAttempt recoveryattempt)
     {
-        _context.RecoveryAttempt.Add(recoveryattempt);
-        await _context.SaveChangesAsync();
+        var result = await _attemptManager.AddAttemptAsync(recoveryattempt);
 
-        return CreatedAtAction("GetRecoveryAttempt", new { id = recoveryattempt.Id }, recoveryattempt);
+        if (result.Error != null)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return CreatedAtAction(nameof(GetRecoveryAttempt), new { id = result.Attempt.Id }, result.Attempt);
     }
 
     // DELETE: api/RecoveryAttempt/5
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> DeleteRecoveryAttempt(int? id)
+    public async Task<IActionResult> DeleteRecoveryAttempt(int id)
     {
-        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
-        if (recoveryattempt == null)
+        var deleted = await _attemptManager.DeleteAttemptAsync(id);
+
+        if (!deleted)
         {
             return NotFound();
         }
 
-        _context.RecoveryAttempt.Remove(recoveryattempt);
-        await _context.SaveChangesAsync();
-
         return NoContent();
-    }
-
-    private bool RecoveryAttemptExists(int? id)
-    {
-        return _context.RecoveryAttempt.Any(e => e.Id == id);
     }
 
     [HttpPut("{id}/complete")]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<RecoveryAttempt>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
     {
-        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
-        if (recoveryattempt == null)
+        var result = await _attemptManager.CompleteAttemptAsync(id, isSuccessful);
+
+        if (result.Attempt == null)
         {
             return NotFound();
         }
-        try
+
+        if (result.Result == RecoveryCompletionResult.AlreadyCompleted)
         {
-            recoveryattempt.Complete(isSuccessful, DateTime.UtcNow);
+            return Conflict("Recovery attempt is already completed.");
         }
-        catch (InvalidOperationException ex)
+
+        if (result.Result == RecoveryCompletionResult.InvalidFinishTime)
         {
-            return Conflict(ex.Message);
+            return BadRequest("Finish time cannot be earlier than start time.");
         }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
-        await _context.SaveChangesAsync();
-        return recoveryattempt;
+
+        return result.Attempt;
     }
 
     [HttpGet("{id}/duration")]
     public async Task<IActionResult> GetRecoveryAttemptDuration(int id)
     {
-        var recoveryattempt = await _context.RecoveryAttempt.FindAsync(id);
-        if (recoveryattempt == null)
+        var result = await _attemptManager.GetDurationAsync(id);
+
+        if (!result.Found)
         {
             return NotFound();
         }
-        return Ok(new{durationSeconds = recoveryattempt.GetDurationSeconds()});
+
+        return Ok(new { durationSeconds = result.DurationSeconds });
     }
 }
