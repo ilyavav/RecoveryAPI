@@ -39,5 +39,18 @@ namespace RecoveryAPI.Controllers
 
             return Ok(report);
         }
+
+        [HttpGet("failedServices")]
+        public async Task<IActionResult> GetFailedServicesReport([FromQuery] int minimumCriticality = 4)
+        {
+            if (minimumCriticality < 1 || minimumCriticality > 5)
+            {
+                return BadRequest("Minimum criticality must be between 1 and 5.");
+            }
+
+            var report = await _reportManager.GetFailedServicesAsync(minimumCriticality);
+
+            return Ok(report);
+        }
     }
 }

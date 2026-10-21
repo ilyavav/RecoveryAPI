@@ -1,0 +1,20 @@
+info:
+  name: Failed Services Report
+  type: http
+  seq: 4
+
+http:
+  method: GET
+  url: https://localhost:7119/api/Reports/failedServices?minimumCriticality=4
+  params:
+    - name: minimumCriticality
+      value: "4"
+      type: query
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

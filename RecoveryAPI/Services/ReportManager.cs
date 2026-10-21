@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Models;
 
 namespace RecoveryAPI.Services
 {
@@ -45,6 +46,18 @@ namespace RecoveryAPI.Services
                 AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id),
                 SuccessfulCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == true),
                 FailedCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == false)
+            }).ToListAsync();
+        }
+
+        public async Task<object> GetFailedServicesAsync(int minimumCriticality)
+        {
+            return await _context.Service.Where(service => service.Status == ServiceStatus.Failed && service.Criticality >= minimumCriticality).OrderByDescending(service => service.Criticality).ThenBy(service => service.Id).Select(service => new
+            {
+                ServiceId = service.Id,
+                ServiceName = service.Name,
+                Criticality = service.Criticality,
+                EstimatedRecoverySeconds = service.EstimatedRecoverySeconds,
+                AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id)
             }).ToListAsync();
         }
     }
