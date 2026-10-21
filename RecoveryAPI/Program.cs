@@ -12,6 +12,7 @@ builder.Services.AddScoped<ServiceManager>();
 builder.Services.AddScoped<ServiceDependencyManager>();
 builder.Services.AddScoped<RecoveryAttemptManager>();
 builder.Services.AddScoped<ReportManager>();
+builder.Services.AddScoped<AuthManager>();
 // Add services to the container.
 
 builder.Services.AddControllers();

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Models;
+using RecoveryAPI.Services;
 
 namespace RecoveryAPI.Controllers
 {
@@ -8,16 +8,24 @@ namespace RecoveryAPI.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        [HttpGet("token")]
-        public object GetToken()
+        private readonly AuthManager _authManager;
+
+        public AuthController(AuthManager authManager)
         {
-            return AuthOptions.GenerateToken();
+            _authManager = authManager;
         }
 
-        [HttpGet("token/secret")]//!!!
-        public object GetAdminToken()
+        [HttpPost]
+        public IActionResult GetToken([FromBody] LoginData loginData)
         {
-            return AuthOptions.GenerateToken(true);
+            var user = _authManager.Authenticate(loginData.Login, loginData.Password);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Wrong login or password." });
+            }
+
+            return Ok(AuthOptions.GenerateToken(user.Login, user.IsAdmin));
         }
     }
 }

@@ -12,12 +12,12 @@ namespace RecoveryAPI.Models
         public static int LifetimeInYears => 1;
         public static SecurityKey SigningKey => new SymmetricSecurityKey(Encoding.ASCII.GetBytes("superSecretKeyMustBeLoooooong12345"));
 
-        internal static object GenerateToken(bool is_admin = false)
+        internal static object GenerateToken(string login, bool is_admin = false)
         {
             var now = DateTime.UtcNow;
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, "user"),
+                new Claim(ClaimsIdentity.DefaultNameClaimType, login),
                 new Claim(ClaimsIdentity.DefaultRoleClaimType,is_admin ? "admin" : "guest")
             };
 
