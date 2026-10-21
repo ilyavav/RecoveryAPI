@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using RecoveryAPI.Services;
@@ -9,11 +8,10 @@ using RecoveryAPI.Services;
 [Authorize]
 public class ServicesController : ControllerBase
 {
-    private readonly RecoveryAPIContext _context;
     private readonly ServiceManager _serviceManager;
-    public ServicesController(RecoveryAPIContext context,ServiceManager serviceManager)
+
+    public ServicesController(ServiceManager serviceManager)
     {
-        _context = context;
         _serviceManager = serviceManager;
     }
 
@@ -42,29 +40,18 @@ public class ServicesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> PutService(int? id, Service service)
+    public async Task<IActionResult> PutService(int id, Service service)
     {
         if (id != service.Id)
         {
             return BadRequest();
         }
 
-        _context.Entry(service).State = EntityState.Modified;
+        var updated = await _serviceManager.UpdateServiceAsync(service);
 
-        try
+        if (!updated)
         {
-            await _context.SaveChangesAsync();
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!ServiceExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            return NotFound();
         }
 
         return NoContent();
@@ -76,45 +63,42 @@ public class ServicesController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> PostService(Service service)
     {
-        _context.Service.Add(service);
-        await _context.SaveChangesAsync();
+        var createdService = await _serviceManager.AddServiceAsync(service);
 
-        return CreatedAtAction("GetService", new { id = service.Id }, service);
+        return CreatedAtAction(nameof(GetService), new { id = createdService.Id }, createdService);
     }
 
     // DELETE: api/Service/5
     [HttpDelete("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> DeleteService(int? id)
+    public async Task<IActionResult> DeleteService(int id)
     {
-        var service = await _context.Service.FindAsync(id);
-        if (service == null)
+        var result = await _serviceManager.DeleteServiceAsync(id);
+
+        if (!result.Found)
         {
             return NotFound();
         }
 
-        _context.Service.Remove(service);
-        await _context.SaveChangesAsync();
+        if (!result.Deleted)
+        {
+            return Conflict("Service has related dependencies or recovery attempts.");
+        }
 
         return NoContent();
-    }
-
-    private bool ServiceExists(int? id)
-    {
-        return _context.Service.Any(e => e.Id == id);
     }
 
     [HttpPut("{id}/fail")]
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceFailed(int id)
     {
-        var service = await _context.Service.FindAsync(id);
+        var service = await _serviceManager.MakeServiceFailedAsync(id);
+
         if (service == null)
         {
             return NotFound();
         }
-        service.MakeFailed();
-        await _context.SaveChangesAsync();
+
         return service;
     }
 
@@ -141,22 +125,18 @@ public class ServicesController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceRecovered(int id)
     {
-        var service = await _context.Service.FindAsync(id);
-        if (service == null)
+        var result = await _serviceManager.CompleteRecoveryAsync(id);
+
+        if (result.Service == null)
         {
             return NotFound();
         }
 
-        try
+        if (!result.Recovered)
         {
-            service.MakeRecovered();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
+            return Conflict("Service is not recovering.");
         }
 
-        await _context.SaveChangesAsync();
-        return service;
+        return result.Service;
     }
 }
