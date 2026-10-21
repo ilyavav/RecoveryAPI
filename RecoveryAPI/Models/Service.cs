@@ -25,13 +25,15 @@ namespace RecoveryAPI.Models
             }
             Status = ServiceStatus.Running;
         }
-        public void MakeRecovering()
+        public bool TryMakeRecovering()
         {
             if (Status != ServiceStatus.Failed)
             {
-                throw new InvalidOperationException("Recovery can only start for a failed service.");
+                return false;
             }
+
             Status = ServiceStatus.Recovering;
+            return true;
         }
     }
     public enum ServiceStatus

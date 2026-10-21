@@ -14,7 +14,7 @@ namespace RecoveryAPI.Controllers
             return AuthOptions.GenerateToken();
         }
 
-        [HttpGet("token/secret")]
+        [HttpGet("token/secret")]//!!!
         public object GetAdminToken()
         {
             return AuthOptions.GenerateToken(true);

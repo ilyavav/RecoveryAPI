@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
+using RecoveryAPI.Services;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -9,23 +10,25 @@ using Microsoft.AspNetCore.Authorization;
 public class ServicesController : ControllerBase
 {
     private readonly RecoveryAPIContext _context;
-    public ServicesController(RecoveryAPIContext context)
+    private readonly ServiceManager _serviceManager;
+    public ServicesController(RecoveryAPIContext context,ServiceManager serviceManager)
     {
         _context = context;
+        _serviceManager = serviceManager;
     }
 
     // GET: api/Service
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Service>>> GetService()
     {
-        return await _context.Service.ToListAsync();
+        return await _serviceManager.GetServicesAsync();
     }
 
     // GET: api/Service/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Service>> GetService(int id)
     {
-        var service = await _context.Service.FindAsync(id);
+        var service = await _serviceManager.GetServiceAsync(id);
 
         if (service == null)
         {
@@ -119,23 +122,19 @@ public class ServicesController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<ActionResult<Service>> MakeServiceRecovering(int id)
     {
-        var service = await _context.Service.FindAsync(id);
-        if (service == null)
+        var result = await _serviceManager.StartRecoveryAsync(id);
+
+        if (result.Service == null)
         {
             return NotFound();
         }
 
-        try
+        if (!result.Started)
         {
-            service.MakeRecovering();
-        }
-        catch (InvalidOperationException ex)
-        {
-            return Conflict(ex.Message);
+            return Conflict("Recovery can only start for a failed service.");
         }
 
-        await _context.SaveChangesAsync();
-        return service;
+        return result.Service;
     }
 
     [HttpPut("{id}/recovered")]

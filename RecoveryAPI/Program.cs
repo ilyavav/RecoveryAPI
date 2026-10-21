@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using RecoveryAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("RecoveryAPIContext") ?? throw new InvalidOperationException("Connection string 'RecoveryAPIContext' not found.");
 
 builder.Services.AddDbContext<RecoveryAPIContext>(options => options.UseSqlite(connectionString));
-
+builder.Services.AddScoped<ServiceManager>();
 // Add services to the container.
 
 builder.Services.AddControllers();
