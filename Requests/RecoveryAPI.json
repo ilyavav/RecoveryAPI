@@ -70,7 +70,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Demo Database\",\n  \"description\": \"Database service for demonstration\",\n  \"criticality\": 5,\n  \"status\": 1\n}",
+              "raw": "{\n  \"name\": \"Demo Database\",\n  \"description\": \"Database service for demonstration\",\n  \"criticality\": 5,\n  \"estimatedRecoverySeconds\": 30,\n  \"status\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -143,7 +143,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": 2,\n  \"name\": \"Demo API Updated\",\n  \"description\": \"Updated service description\",\n  \"criticality\": 4,\n  \"status\": 1\n}",
+              "raw": "{\n  \"id\": 2,\n  \"name\": \"Demo API Updated\",\n  \"description\": \"Updated service description\",\n  \"criticality\": 4,\n  \"estimatedRecoverySeconds\": 30,\n  \"status\": 1\n}",
               "options": {
                 "raw": {
                   "language": "json"

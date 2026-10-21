@@ -13,6 +13,7 @@ http:
         "name": "Demo Database",
         "description": "Database service for demonstration",
         "criticality": 5,
+        "estimatedRecoverySeconds": 30,
         "status": 1
       }
   auth:

@@ -120,6 +120,16 @@ namespace RecoveryAPI.Services
                 return "Service was not found.";
             }
 
+            if (attempt.FinishedAt.HasValue && attempt.FinishedAt.Value < attempt.StartedAt)
+            {
+                return "Finish time cannot be earlier than start time.";
+            }
+
+            if (attempt.FinishedAt.HasValue != attempt.IsSuccessful.HasValue)
+            {
+                return "Finish time and recovery result must either both be provided or both be omitted.";
+            }
+
             return null;
         }
     }

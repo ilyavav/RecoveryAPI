@@ -12,7 +12,7 @@ namespace RecoveryAPI.Models
         public int Criticality { get; set; }
         [Range(0.0, double.MaxValue, MinimumIsExclusive = true, ErrorMessage = "Estimated recovery time must be greater than zero.")]
         public double EstimatedRecoverySeconds { get; set; }
-
+        [EnumDataType(typeof(ServiceStatus), ErrorMessage = "Invalid service status.")]
         public ServiceStatus Status { get; set; }
 
         public void MakeFailed()
