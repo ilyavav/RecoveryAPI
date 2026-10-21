@@ -817,51 +817,103 @@
               "variable": []
             }
           }
+        },
+        {
+          "name": "Failed Services Report",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidXNlciIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Imd1ZXN0IiwibmJmIjoxNzkyNTg1ODc2LCJleHAiOjE4MjQxMjE4NzYsImlzcyI6IklseWEiLCJhdWQiOiJBUEljbGllbnRzIn0.XVosrsA8Jiy7wDTApQLcymwNlWQut5He3t678a_2hro",
+                  "type": "string"
+                }
+              ]
+            },
+            "description": "",
+            "url": {
+              "raw": "https://localhost:7119/api/Reports/failedServices?minimumCriticality=4",
+              "protocol": "https",
+              "host": [
+                "localhost:7119"
+              ],
+              "path": [
+                "api",
+                "Reports",
+                "failedServices"
+              ],
+              "query": [
+                {
+                  "key": "minimumCriticality",
+                  "value": "4"
+                }
+              ],
+              "variable": []
+            }
+          }
         }
       ]
     },
     {
-      "name": "Guest Token",
+      "name": "User Login",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [],
         "description": "",
         "url": {
-          "raw": "https://localhost:7119/api/Auth/token",
+          "raw": "https://localhost:7119/api/Auth",
           "protocol": "https",
           "host": [
             "localhost:7119"
           ],
           "path": [
             "api",
-            "Auth",
-            "token"
+            "Auth"
           ],
           "query": [],
           "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"user\",\n  \"password\": \"user\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
       }
     },
     {
       "name": "Admin Token",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "header": [],
         "description": "",
         "url": {
-          "raw": "https://localhost:7119/api/Auth/token/secret",
+          "raw": "https://localhost:7119/api/Auth",
           "protocol": "https",
           "host": [
             "localhost:7119"
           ],
           "path": [
             "api",
-            "Auth",
-            "token",
-            "secret"
+            "Auth"
           ],
           "query": [],
           "variable": []
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"login\": \"admin\",\n  \"password\": \"admin\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
         }
       }
     }
