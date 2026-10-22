@@ -5,10 +5,10 @@ info:
 
 http:
   method: GET
-  url: https://localhost:7119/api/Reports/failedServices?minimumCriticality=4
+  url: https://localhost:7119/api/Reports/failedServices?minimumCriticality=1
   params:
     - name: minimumCriticality
-      value: "4"
+      value: "1"
       type: query
   auth:
     type: bearer

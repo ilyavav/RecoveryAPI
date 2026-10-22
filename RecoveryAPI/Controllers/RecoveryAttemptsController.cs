@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using RecoveryAPI.Services;
+using RecoveryAPI.Dtos;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,14 +18,14 @@ public class RecoveryAttemptsController : ControllerBase
 
     // GET: api/RecoveryAttempt
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RecoveryAttempt>>> GetRecoveryAttempt()
+    public async Task<ActionResult<IEnumerable<RecoveryAttemptDto>>> GetRecoveryAttempt()
     {
         return await _attemptManager.GetAttemptsAsync();
     }
 
     // GET: api/RecoveryAttempt/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<RecoveryAttempt>> GetRecoveryAttempt(int id)
+    public async Task<ActionResult<RecoveryAttemptDto>> GetRecoveryAttempt(int id)
     {
         var recoveryattempt = await _attemptManager.GetAttemptAsync(id);
 
@@ -66,7 +67,7 @@ public class RecoveryAttemptsController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<RecoveryAttempt>> PostRecoveryAttempt(RecoveryAttempt recoveryattempt)
+    public async Task<ActionResult<RecoveryAttemptDto>> PostRecoveryAttempt(RecoveryAttempt recoveryattempt)
     {
         var result = await _attemptManager.AddAttemptAsync(recoveryattempt);
 
@@ -95,7 +96,7 @@ public class RecoveryAttemptsController : ControllerBase
 
     [HttpPut("{id}/complete")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<RecoveryAttempt>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
+    public async Task<ActionResult<RecoveryAttemptDto>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
     {
         var result = await _attemptManager.CompleteAttemptAsync(id, isSuccessful);
 
@@ -118,7 +119,7 @@ public class RecoveryAttemptsController : ControllerBase
     }
 
     [HttpGet("{id}/duration")]
-    public async Task<IActionResult> GetRecoveryAttemptDuration(int id)
+    public async Task<ActionResult<RecoveryAttemptDurationDto>> GetRecoveryAttemptDuration(int id)
     {
         var result = await _attemptManager.GetDurationAsync(id);
 
@@ -127,6 +128,6 @@ public class RecoveryAttemptsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(new { durationSeconds = result.DurationSeconds });
+        return Ok(result.Duration);
     }
 }

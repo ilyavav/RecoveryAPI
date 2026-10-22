@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 
 namespace RecoveryAPI.Services
@@ -12,9 +13,9 @@ namespace RecoveryAPI.Services
             _context = context;
         }
 
-        public async Task<object> GetDependenciesAsync()
+        public async Task<List<DependencyReportDto>> GetDependenciesAsync()
         {
-            return await _context.ServiceDependency.Select(dependency => new
+            return await _context.ServiceDependency.Select(dependency => new DependencyReportDto
             {
                 Id = dependency.Id,
                 ServiceId = dependency.ServiceId,
@@ -24,9 +25,9 @@ namespace RecoveryAPI.Services
             }).ToListAsync();
         }
 
-        public async Task<object> GetRecoveryHistoryAsync(int serviceId)
+        public async Task<List<RecoveryHistoryDto>> GetRecoveryHistoryAsync(int serviceId)
         {
-            return await _context.RecoveryAttempt.Where(attempt => attempt.ServiceId == serviceId).Select(attempt => new
+            return await _context.RecoveryAttempt.Where(attempt => attempt.ServiceId == serviceId).Select(attempt => new RecoveryHistoryDto
             {
                 Id = attempt.Id,
                 ServiceId = attempt.ServiceId,
@@ -37,9 +38,9 @@ namespace RecoveryAPI.Services
             }).ToListAsync();
         }
 
-        public async Task<object> GetRecoveryStatisticsAsync()
+        public async Task<List<RecoveryStatisticsDto>> GetRecoveryStatisticsAsync()
         {
-            return await _context.Service.Select(service => new
+            return await _context.Service.Select(service => new RecoveryStatisticsDto
             {
                 ServiceId = service.Id,
                 ServiceName = service.Name,
@@ -49,9 +50,9 @@ namespace RecoveryAPI.Services
             }).ToListAsync();
         }
 
-        public async Task<object> GetFailedServicesAsync(int minimumCriticality)
+        public async Task<List<FailedServiceReportDto>> GetFailedServicesAsync(int minimumCriticality)
         {
-            return await _context.Service.Where(service => service.Status == ServiceStatus.Failed && service.Criticality >= minimumCriticality).OrderByDescending(service => service.Criticality).ThenBy(service => service.Id).Select(service => new
+            return await _context.Service.Where(service => service.Status == ServiceStatus.Failed && service.Criticality >= minimumCriticality).OrderByDescending(service => service.Criticality).ThenBy(service => service.Id).Select(service => new FailedServiceReportDto
             {
                 ServiceId = service.Id,
                 ServiceName = service.Name,

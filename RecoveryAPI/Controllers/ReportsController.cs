@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Services;
 
 namespace RecoveryAPI.Controllers
@@ -17,7 +18,7 @@ namespace RecoveryAPI.Controllers
         }
 
         [HttpGet("dependencies")]
-        public async Task<IActionResult> GetDependenciesReport()
+        public async Task<ActionResult<IEnumerable<DependencyReportDto>>> GetDependenciesReport()
         {
             var report = await _reportManager.GetDependenciesAsync();
 
@@ -25,7 +26,7 @@ namespace RecoveryAPI.Controllers
         }
 
         [HttpGet("recoveryHistory/{serviceId}")]
-        public async Task<IActionResult> GetRecoveryAttemptsReport(int serviceId)
+        public async Task<ActionResult<IEnumerable<RecoveryHistoryDto>>> GetRecoveryAttemptsReport(int serviceId)
         {
             var report = await _reportManager.GetRecoveryHistoryAsync(serviceId);
 
@@ -33,7 +34,7 @@ namespace RecoveryAPI.Controllers
         }
 
         [HttpGet("recoveryStatistics")]
-        public async Task<IActionResult> GetRecoveryStatistics()
+        public async Task<ActionResult<IEnumerable<RecoveryStatisticsDto>>> GetRecoveryStatistics()
         {
             var report = await _reportManager.GetRecoveryStatisticsAsync();
 
@@ -41,7 +42,7 @@ namespace RecoveryAPI.Controllers
         }
 
         [HttpGet("failedServices")]
-        public async Task<IActionResult> GetFailedServicesReport([FromQuery] int minimumCriticality = 4)
+        public async Task<ActionResult<IEnumerable<FailedServiceReportDto>>> GetFailedServicesReport([FromQuery] int minimumCriticality = 4)
         {
             if (minimumCriticality < 1 || minimumCriticality > 5)
             {

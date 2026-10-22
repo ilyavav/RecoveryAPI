@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using RecoveryAPI.Services;
+using RecoveryAPI.Dtos;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,14 +18,14 @@ public class ServiceDependenciesController : ControllerBase
 
     // GET: api/ServiceDependency
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ServiceDependency>>> GetServiceDependency()
+    public async Task<ActionResult<IEnumerable<ServiceDependencyDto>>> GetServiceDependency()
     {
         return await _dependencyManager.GetDependenciesAsync();
     }
 
     // GET: api/ServiceDependency/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<ServiceDependency>> GetServiceDependency(int id)
+    public async Task<ActionResult<ServiceDependencyDto>> GetServiceDependency(int id)
     {
         var servicedependency = await _dependencyManager.GetDependencyAsync(id);
 
@@ -66,7 +67,7 @@ public class ServiceDependenciesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDependency>> PostServiceDependency(ServiceDependency servicedependency)
+    public async Task<ActionResult<ServiceDependencyDto>> PostServiceDependency(ServiceDependency servicedependency)
     {
         var result = await _dependencyManager.AddDependencyAsync(servicedependency);
 

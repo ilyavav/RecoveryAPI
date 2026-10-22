@@ -2,6 +2,7 @@
 using System.Text;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using RecoveryAPI.Dtos;
 
 namespace RecoveryAPI.Models
 {
@@ -12,18 +13,16 @@ namespace RecoveryAPI.Models
         public static int LifetimeInYears => 1;
         public static SecurityKey SigningKey => new SymmetricSecurityKey(Encoding.ASCII.GetBytes("superSecretKeyMustBeLoooooong12345"));
 
-        internal static object GenerateToken(string login, bool is_admin = false)
+        internal static TokenDto GenerateToken(string login, bool is_admin = false)
         {
             var now = DateTime.UtcNow;
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, login),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType,is_admin ? "admin" : "guest")
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, is_admin ? "admin" : "guest")
             };
 
-            ClaimsIdentity identity = 
-            new ClaimsIdentity(claims,"Token",ClaimsIdentity.DefaultNameClaimType,
-                ClaimsIdentity.DefaultRoleClaimType);
+            ClaimsIdentity identity = new ClaimsIdentity(claims, "Token", ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
 
             // создаем JWT-токен
             var jwt = new JwtSecurityToken(
@@ -32,9 +31,14 @@ namespace RecoveryAPI.Models
                 notBefore: now,
                 expires: now.AddYears(LifetimeInYears),
                 claims: identity.Claims,
-                signingCredentials: new SigningCredentials(SigningKey,SecurityAlgorithms.HmacSha256));
+                signingCredentials: new SigningCredentials(SigningKey, SecurityAlgorithms.HmacSha256));
+
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
-            return new { token = encodedJwt };
+
+            return new TokenDto
+            {
+                Token = encodedJwt
+            };
         }
     }
 }

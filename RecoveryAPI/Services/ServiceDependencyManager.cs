@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 
 namespace RecoveryAPI.Services
@@ -12,29 +13,38 @@ namespace RecoveryAPI.Services
             _context = context;
         }
 
-        public async Task<List<ServiceDependency>> GetDependenciesAsync()
+        public async Task<List<ServiceDependencyDto>> GetDependenciesAsync()
         {
-            return await _context.ServiceDependency.ToListAsync();
+            var dependencies = await _context.ServiceDependency.ToListAsync();
+
+            return dependencies.Select(dependency => ToDto(dependency)).ToList();
         }
 
-        public async Task<ServiceDependency?> GetDependencyAsync(int id)
+        public async Task<ServiceDependencyDto?> GetDependencyAsync(int id)
         {
-            return await _context.ServiceDependency.FindAsync(id);
+            var dependency = await _context.ServiceDependency.FindAsync(id);
+
+            if (dependency == null)
+            {
+                return null;
+            }
+
+            return ToDto(dependency);
         }
 
-        public async Task<(ServiceDependency Dependency, string? Error)> AddDependencyAsync(ServiceDependency dependency)
+        public async Task<(ServiceDependencyDto Dependency, string? Error)> AddDependencyAsync(ServiceDependency dependency)
         {
             var error = await GetValidationErrorAsync(dependency);
 
             if (error != null)
             {
-                return (dependency, error);
+                return (ToDto(dependency), error);
             }
 
             _context.ServiceDependency.Add(dependency);
             await _context.SaveChangesAsync();
 
-            return (dependency, null);
+            return (ToDto(dependency), null);
         }
 
         public async Task<(bool Found, string? Error)> UpdateDependencyAsync(ServiceDependency dependency)
@@ -98,6 +108,16 @@ namespace RecoveryAPI.Services
             }
 
             return null;
+        }
+
+        private static ServiceDependencyDto ToDto(ServiceDependency dependency)
+        {
+            return new ServiceDependencyDto
+            {
+                Id = dependency.Id,
+                ServiceId = dependency.ServiceId,
+                DependsOnServiceId = dependency.DependsOnServiceId
+            };
         }
     }
 }

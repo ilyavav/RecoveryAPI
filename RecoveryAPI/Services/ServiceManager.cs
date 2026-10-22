@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 
 namespace RecoveryAPI.Services
@@ -12,22 +13,31 @@ namespace RecoveryAPI.Services
             _context = context;
         }
 
-        public async Task<List<Service>> GetServicesAsync()
+        public async Task<List<ServiceDto>> GetServicesAsync()
         {
-            return await _context.Service.ToListAsync();
+            var services = await _context.Service.ToListAsync();
+
+            return services.Select(service => ToDto(service)).ToList();
         }
 
-        public async Task<Service?> GetServiceAsync(int id)
+        public async Task<ServiceDto?> GetServiceAsync(int id)
         {
-            return await _context.Service.FindAsync(id);
+            var service = await _context.Service.FindAsync(id);
+
+            if (service == null)
+            {
+                return null;
+            }
+
+            return ToDto(service);
         }
 
-        public async Task<Service> AddServiceAsync(Service service)
+        public async Task<ServiceDto> AddServiceAsync(Service service)
         {
             _context.Service.Add(service);
             await _context.SaveChangesAsync();
 
-            return service;
+            return ToDto(service);
         }
 
         public async Task<bool> UpdateServiceAsync(Service service)
@@ -59,7 +69,7 @@ namespace RecoveryAPI.Services
                 return (false, false);
             }
 
-            var hasDependencies = await _context.ServiceDependency.AnyAsync(dependency => dependency.ServiceId == id|| dependency.DependsOnServiceId == id);
+            var hasDependencies = await _context.ServiceDependency.AnyAsync(dependency => dependency.ServiceId == id || dependency.DependsOnServiceId == id);
 
             var hasAttempts = await _context.RecoveryAttempt.AnyAsync(attempt => attempt.ServiceId == id);
 
@@ -74,7 +84,7 @@ namespace RecoveryAPI.Services
             return (true, true);
         }
 
-        public async Task<Service?> MakeServiceFailedAsync(int id)
+        public async Task<ServiceDto?> MakeServiceFailedAsync(int id)
         {
             var service = await _context.Service.FindAsync(id);
 
@@ -86,10 +96,10 @@ namespace RecoveryAPI.Services
             service.MakeFailed();
             await _context.SaveChangesAsync();
 
-            return service;
+            return ToDto(service);
         }
 
-        public async Task<(Service? Service, bool Started)> StartRecoveryAsync(int id)
+        public async Task<(ServiceDto? Service, bool Started)> StartRecoveryAsync(int id)
         {
             var service = await _context.Service.FindAsync(id);
 
@@ -100,15 +110,15 @@ namespace RecoveryAPI.Services
 
             if (!service.TryMakeRecovering())
             {
-                return (service, false);
+                return (ToDto(service), false);
             }
 
             await _context.SaveChangesAsync();
 
-            return (service, true);
+            return (ToDto(service), true);
         }
 
-        public async Task<(Service? Service, bool Recovered)> CompleteRecoveryAsync(int id)
+        public async Task<(ServiceDto? Service, bool Recovered)> CompleteRecoveryAsync(int id)
         {
             var service = await _context.Service.FindAsync(id);
 
@@ -119,12 +129,25 @@ namespace RecoveryAPI.Services
 
             if (!service.TryMakeRecovered())
             {
-                return (service, false);
+                return (ToDto(service), false);
             }
 
             await _context.SaveChangesAsync();
 
-            return (service, true);
+            return (ToDto(service), true);
+        }
+
+        private static ServiceDto ToDto(Service service)
+        {
+            return new ServiceDto
+            {
+                Id = service.Id,
+                Name = service.Name,
+                Description = service.Description,
+                Criticality = service.Criticality,
+                EstimatedRecoverySeconds = service.EstimatedRecoverySeconds,
+                Status = service.Status
+            };
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 
 namespace RecoveryAPI.Services
@@ -12,29 +13,38 @@ namespace RecoveryAPI.Services
             _context = context;
         }
 
-        public async Task<List<RecoveryAttempt>> GetAttemptsAsync()
+        public async Task<List<RecoveryAttemptDto>> GetAttemptsAsync()
         {
-            return await _context.RecoveryAttempt.ToListAsync();
+            var attempts = await _context.RecoveryAttempt.ToListAsync();
+
+            return attempts.Select(attempt => ToDto(attempt)).ToList();
         }
 
-        public async Task<RecoveryAttempt?> GetAttemptAsync(int id)
+        public async Task<RecoveryAttemptDto?> GetAttemptAsync(int id)
         {
-            return await _context.RecoveryAttempt.FindAsync(id);
+            var attempt = await _context.RecoveryAttempt.FindAsync(id);
+
+            if (attempt == null)
+            {
+                return null;
+            }
+
+            return ToDto(attempt);
         }
 
-        public async Task<(RecoveryAttempt Attempt, string? Error)> AddAttemptAsync(RecoveryAttempt attempt)
+        public async Task<(RecoveryAttemptDto Attempt, string? Error)> AddAttemptAsync(RecoveryAttempt attempt)
         {
             var error = await GetValidationErrorAsync(attempt);
 
             if (error != null)
             {
-                return (attempt, error);
+                return (ToDto(attempt), error);
             }
 
             _context.RecoveryAttempt.Add(attempt);
             await _context.SaveChangesAsync();
 
-            return (attempt, null);
+            return (ToDto(attempt), null);
         }
 
         public async Task<(bool Found, string? Error)> UpdateAttemptAsync(RecoveryAttempt attempt)
@@ -78,7 +88,7 @@ namespace RecoveryAPI.Services
             return true;
         }
 
-        public async Task<(RecoveryAttempt? Attempt, RecoveryCompletionResult Result)> CompleteAttemptAsync(int id, bool isSuccessful)
+        public async Task<(RecoveryAttemptDto? Attempt, RecoveryCompletionResult Result)> CompleteAttemptAsync(int id, bool isSuccessful)
         {
             var attempt = await _context.RecoveryAttempt.FindAsync(id);
 
@@ -91,15 +101,15 @@ namespace RecoveryAPI.Services
 
             if (result != RecoveryCompletionResult.Completed)
             {
-                return (attempt, result);
+                return (ToDto(attempt), result);
             }
 
             await _context.SaveChangesAsync();
 
-            return (attempt, result);
+            return (ToDto(attempt), result);
         }
 
-        public async Task<(bool Found, double? DurationSeconds)> GetDurationAsync(int id)
+        public async Task<(bool Found, RecoveryAttemptDurationDto? Duration)> GetDurationAsync(int id)
         {
             var attempt = await _context.RecoveryAttempt.FindAsync(id);
 
@@ -108,7 +118,12 @@ namespace RecoveryAPI.Services
                 return (false, null);
             }
 
-            return (true, attempt.GetDurationSeconds());
+            var duration = new RecoveryAttemptDurationDto
+            {
+                DurationSeconds = attempt.GetDurationSeconds()
+            };
+
+            return (true, duration);
         }
 
         private async Task<string?> GetValidationErrorAsync(RecoveryAttempt attempt)
@@ -131,6 +146,18 @@ namespace RecoveryAPI.Services
             }
 
             return null;
+        }
+
+        private static RecoveryAttemptDto ToDto(RecoveryAttempt attempt)
+        {
+            return new RecoveryAttemptDto
+            {
+                Id = attempt.Id,
+                ServiceId = attempt.ServiceId,
+                StartedAt = attempt.StartedAt,
+                FinishedAt = attempt.FinishedAt,
+                IsSuccessful = attempt.IsSuccessful
+            };
         }
     }
 }

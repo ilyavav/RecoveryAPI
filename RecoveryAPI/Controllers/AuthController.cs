@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 using RecoveryAPI.Services;
 
@@ -16,13 +17,13 @@ namespace RecoveryAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetToken([FromBody] LoginData loginData)
+        public ActionResult<TokenDto> GetToken([FromBody] LoginData loginData)
         {
             var user = _authManager.Authenticate(loginData.Login, loginData.Password);
 
             if (user == null)
             {
-                return Unauthorized(new { message = "Wrong login or password." });
+                return Unauthorized(new ErrorDto { Message = "Wrong login or password." });
             }
 
             return Ok(AuthOptions.GenerateToken(user.Login, user.IsAdmin));

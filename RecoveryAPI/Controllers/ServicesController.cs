@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
 using RecoveryAPI.Services;
+using RecoveryAPI.Dtos;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -17,14 +18,14 @@ public class ServicesController : ControllerBase
 
     // GET: api/Service
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Service>>> GetService()
+    public async Task<ActionResult<IEnumerable<ServiceDto>>> GetService()
     {
         return await _serviceManager.GetServicesAsync();
     }
 
     // GET: api/Service/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Service>> GetService(int id)
+    public async Task<ActionResult<ServiceDto>> GetService(int id)
     {
         var service = await _serviceManager.GetServiceAsync(id);
 
@@ -61,7 +62,7 @@ public class ServicesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<Service>> PostService(Service service)
+    public async Task<ActionResult<ServiceDto>> PostService(Service service)
     {
         var createdService = await _serviceManager.AddServiceAsync(service);
 
@@ -90,7 +91,7 @@ public class ServicesController : ControllerBase
 
     [HttpPut("{id}/fail")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<Service>> MakeServiceFailed(int id)
+    public async Task<ActionResult<ServiceDto>> MakeServiceFailed(int id)
     {
         var service = await _serviceManager.MakeServiceFailedAsync(id);
 
@@ -104,7 +105,7 @@ public class ServicesController : ControllerBase
 
     [HttpPut("{id}/recovering")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<Service>> MakeServiceRecovering(int id)
+    public async Task<ActionResult<ServiceDto>> MakeServiceRecovering(int id)
     {
         var result = await _serviceManager.StartRecoveryAsync(id);
 
@@ -123,7 +124,7 @@ public class ServicesController : ControllerBase
 
     [HttpPut("{id}/recovered")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<Service>> MakeServiceRecovered(int id)
+    public async Task<ActionResult<ServiceDto>> MakeServiceRecovered(int id)
     {
         var result = await _serviceManager.CompleteRecoveryAsync(id);
 
