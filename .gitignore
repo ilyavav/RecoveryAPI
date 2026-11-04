@@ -405,3 +405,4 @@ RecoveryAPI/RecoveryAPIContext.db-wal
 *_backup.db
 *_backup.db-shm
 *_backup.db-wal
+/Requests/RecoveryAPI/
