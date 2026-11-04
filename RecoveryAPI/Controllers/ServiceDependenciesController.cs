@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using RecoveryAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Dtos;
+using RecoveryAPI.Services;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -27,28 +26,23 @@ public class ServiceDependenciesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<ServiceDependencyDto>> GetServiceDependency(int id)
     {
-        var servicedependency = await _dependencyManager.GetDependencyAsync(id);
+        var dependency = await _dependencyManager.GetDependencyAsync(id);
 
-        if (servicedependency == null)
+        if (dependency == null)
         {
             return NotFound();
         }
 
-        return servicedependency;
+        return dependency;
     }
 
     // PUT: api/ServiceDependency/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> PutServiceDependency(int id, ServiceDependency servicedependency)
+    public async Task<IActionResult> PutServiceDependency(int id, ServiceDependencyDto input)
     {
-        if (id != servicedependency.Id)
-        {
-            return BadRequest();
-        }
-
-        var result = await _dependencyManager.UpdateDependencyAsync(servicedependency);
+        var result = await _dependencyManager.UpdateDependencyAsync(id, input);
 
         if (!result.Found)
         {
@@ -57,7 +51,12 @@ public class ServiceDependenciesController : ControllerBase
 
         if (result.Error != null)
         {
-            return BadRequest(result.Error);
+            if (result.Conflict)
+            {
+                return Conflict(new ErrorDto { Message = result.Error });
+            }
+
+            return BadRequest(new ErrorDto { Message = result.Error });
         }
 
         return NoContent();
@@ -67,16 +66,21 @@ public class ServiceDependenciesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDependencyDto>> PostServiceDependency(ServiceDependency servicedependency)
+    public async Task<ActionResult<ServiceDependencyDto>> PostServiceDependency(ServiceDependencyDto input)
     {
-        var result = await _dependencyManager.AddDependencyAsync(servicedependency);
+        var result = await _dependencyManager.AddDependencyAsync(input);
 
         if (result.Error != null)
         {
-            return BadRequest(result.Error);
+            if (result.Conflict)
+            {
+                return Conflict(new ErrorDto { Message = result.Error });
+            }
+
+            return BadRequest(new ErrorDto { Message = result.Error });
         }
 
-        return CreatedAtAction(nameof(GetServiceDependency), new { id = result.Dependency.Id }, result.Dependency);
+        return CreatedAtAction(nameof(GetServiceDependency), new { id = result.Dependency!.Id }, result.Dependency);
     }
 
     // DELETE: api/ServiceDependency/5
@@ -84,11 +88,16 @@ public class ServiceDependenciesController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteServiceDependency(int id)
     {
-        var deleted = await _dependencyManager.DeleteDependencyAsync(id);
+        var result = await _dependencyManager.DeleteDependencyAsync(id);
 
-        if (!deleted)
+        if (!result.Found)
         {
             return NotFound();
+        }
+
+        if (result.Error != null)
+        {
+            return Conflict(new ErrorDto { Message = result.Error });
         }
 
         return NoContent();

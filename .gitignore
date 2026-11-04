@@ -402,3 +402,6 @@ FodyWeavers.xsd
 RecoveryAPI/RecoveryAPIContext.db
 RecoveryAPI/RecoveryAPIContext.db-shm
 RecoveryAPI/RecoveryAPIContext.db-wal
+*_backup.db
+*_backup.db-shm
+*_backup.db-wal

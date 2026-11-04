@@ -15,14 +15,14 @@ namespace RecoveryAPI.Services
 
         public async Task<List<ServiceDependencyDto>> GetDependenciesAsync()
         {
-            var dependencies = await _context.ServiceDependency.ToListAsync();
+            var dependencies = await _context.ServiceDependency.AsNoTracking().ToListAsync();
 
             return dependencies.Select(dependency => ToDto(dependency)).ToList();
         }
 
         public async Task<ServiceDependencyDto?> GetDependencyAsync(int id)
         {
-            var dependency = await _context.ServiceDependency.FindAsync(id);
+            var dependency = await _context.ServiceDependency.AsNoTracking().FirstOrDefaultAsync(dependency => dependency.Id == id);
 
             if (dependency == null)
             {
@@ -32,82 +32,127 @@ namespace RecoveryAPI.Services
             return ToDto(dependency);
         }
 
-        public async Task<(ServiceDependencyDto Dependency, string? Error)> AddDependencyAsync(ServiceDependency dependency)
+        public async Task<(ServiceDependencyDto? Dependency, bool Conflict, string? Error)> AddDependencyAsync(ServiceDependencyDto input)
         {
-            var error = await GetValidationErrorAsync(dependency);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            if (error != null)
+            var dependency = new ServiceDependency
             {
-                return (ToDto(dependency), error);
+                ServiceId = input.ServiceId,
+                DependsOnServiceId = input.DependsOnServiceId
+            };
+
+            var validation = await GetValidationErrorAsync(dependency);
+
+            if (validation.Error != null)
+            {
+                return (null, validation.Conflict, validation.Error);
             }
 
             _context.ServiceDependency.Add(dependency);
-            await _context.SaveChangesAsync();
 
-            return (ToDto(dependency), null);
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return (ToDto(dependency), false, null);
         }
 
-        public async Task<(bool Found, string? Error)> UpdateDependencyAsync(ServiceDependency dependency)
+        public async Task<(bool Found, bool Conflict, string? Error)> UpdateDependencyAsync(int id, ServiceDependencyDto input)
         {
-            var existingDependency = await _context.ServiceDependency.FindAsync(dependency.Id);
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
+            var existingDependency = await _context.ServiceDependency.FindAsync(id);
 
             if (existingDependency == null)
             {
-                return (false, null);
+                return (false, false, null);
             }
 
-            var error = await GetValidationErrorAsync(dependency);
-
-            if (error != null)
+            var dependency = new ServiceDependency
             {
-                return (true, error);
+                Id = id,
+                ServiceId = input.ServiceId,
+                DependsOnServiceId = input.DependsOnServiceId
+            };
+
+            var validation = await GetValidationErrorAsync(dependency);
+
+            if (validation.Error != null)
+            {
+                return (true, validation.Conflict, validation.Error);
             }
 
             existingDependency.ServiceId = dependency.ServiceId;
             existingDependency.DependsOnServiceId = dependency.DependsOnServiceId;
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
-            return (true, null);
+            return (true, false, null);
         }
 
-        public async Task<bool> DeleteDependencyAsync(int id)
+        public async Task<(bool Found, string? Error)> DeleteDependencyAsync(int id)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var dependency = await _context.ServiceDependency.FindAsync(id);
 
             if (dependency == null)
             {
-                return false;
+                return (false, null);
+            }
+
+            var hasRunningSession = await _context.RecoverySession.AnyAsync(session => session.Status == RecoverySessionStatus.Running);
+
+            if (hasRunningSession)
+            {
+                return (true, "Dependencies cannot be changed during recovery.");
             }
 
             _context.ServiceDependency.Remove(dependency);
-            await _context.SaveChangesAsync();
 
-            return true;
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return (true, null);
         }
 
-        private async Task<string?> GetValidationErrorAsync(ServiceDependency dependency)
+        private async Task<(bool Conflict, string? Error)> GetValidationErrorAsync(ServiceDependency dependency)
         {
+            var hasRunningSession = await _context.RecoverySession.AnyAsync(session => session.Status == RecoverySessionStatus.Running);
+
+            if (hasRunningSession)
+            {
+                return (true, "Dependencies cannot be changed during recovery.");
+            }
+
             if (!dependency.Validate())
             {
-                return "A service cannot depend on itself.";
+                return (false, "A service cannot depend on itself.");
             }
 
             var serviceExists = await _context.Service.AnyAsync(service => service.Id == dependency.ServiceId);
 
             if (!serviceExists)
             {
-                return "Dependent service was not found.";
+                return (false, "Dependent service was not found.");
             }
 
             var prerequisiteExists = await _context.Service.AnyAsync(service => service.Id == dependency.DependsOnServiceId);
 
             if (!prerequisiteExists)
             {
-                return "Prerequisite service was not found.";
+                return (false, "Prerequisite service was not found.");
             }
 
-            return null;
+            var alreadyExists = await _context.ServiceDependency.AnyAsync(other => other.ServiceId == dependency.ServiceId && other.DependsOnServiceId == dependency.DependsOnServiceId && other.Id != dependency.Id);
+
+            if (alreadyExists)
+            {
+                return (true, "This dependency already exists.");
+            }
+
+            return (false, null);
         }
 
         private static ServiceDependencyDto ToDto(ServiceDependency dependency)

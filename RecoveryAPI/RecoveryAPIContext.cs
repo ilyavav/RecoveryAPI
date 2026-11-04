@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RecoveryAPI.Models;
 
 public class RecoveryAPIContext(DbContextOptions<RecoveryAPIContext> options) : DbContext(options)
@@ -12,6 +13,16 @@ public class RecoveryAPIContext(DbContextOptions<RecoveryAPIContext> options) : 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        var utcConverter = new ValueConverter<DateTime, DateTime>(value => value, value => DateTime.SpecifyKind(value, DateTimeKind.Utc));
+
+        modelBuilder.Entity<Service>().Property(service => service.ObservedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoverySession>().Property(session => session.CreatedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoverySession>().Property(session => session.StartedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoverySession>().Property(session => session.FinishedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoverySessionService>().Property(participant => participant.FinalObservedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoveryAttempt>().Property(attempt => attempt.StartedAt).HasConversion(utcConverter);
+        modelBuilder.Entity<RecoveryAttempt>().Property(attempt => attempt.FinishedAt).HasConversion(utcConverter);
 
         modelBuilder.Entity<ServiceDependency>()
             .HasOne(dependency => dependency.Service)

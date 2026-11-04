@@ -48,7 +48,7 @@ namespace RecoveryAPI.Models
 
         public bool TryUpdateObservation(int readyReplicas, DateTime observedAt)
         {
-            if (readyReplicas < 0 || observedAt == default)
+            if (readyReplicas < 0 || observedAt == default || observedAt > DateTime.UtcNow)
             {
                 return false;
             }
