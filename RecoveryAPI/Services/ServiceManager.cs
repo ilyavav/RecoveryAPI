@@ -50,6 +50,8 @@ namespace RecoveryAPI.Services
 
         public async Task<(bool Found, bool Conflict, string? Error)> UpdateServiceAsync(int id, ServiceInputDto input)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var service = await _context.Service.FindAsync(id);
 
             if (service == null)
@@ -76,12 +78,15 @@ namespace RecoveryAPI.Services
             service.Description = input.Description?.Trim();
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, false, null);
         }
 
         public async Task<(bool Found, bool Deleted)> DeleteServiceAsync(int id)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var service = await _context.Service.FindAsync(id);
 
             if (service == null)
@@ -98,13 +103,17 @@ namespace RecoveryAPI.Services
             }
 
             _context.Service.Remove(service);
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, true);
         }
 
         public async Task<(ServiceDto? Service, string? Error)> UpdateObservationAsync(int id, ServiceObservationDto observation)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var service = await _context.Service.FindAsync(id);
 
             if (service == null)
@@ -123,6 +132,7 @@ namespace RecoveryAPI.Services
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (ToDto(service), null);
         }

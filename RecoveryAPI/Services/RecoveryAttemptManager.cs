@@ -34,6 +34,8 @@ namespace RecoveryAPI.Services
 
         public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> AddAttemptAsync(int participantId)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var participant = await _context.RecoverySessionService.Include(participant => participant.RecoverySession).FirstOrDefaultAsync(participant => participant.Id == participantId);
 
             if (participant == null)
@@ -52,13 +54,17 @@ namespace RecoveryAPI.Services
             };
 
             _context.RecoveryAttempt.Add(attempt);
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, ToDto(attempt), null);
         }
 
         public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> StartAttemptAsync(int id)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var attempt = await GetAttemptWithSessionAsync(id);
 
             if (attempt == null)
@@ -77,12 +83,15 @@ namespace RecoveryAPI.Services
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, ToDto(attempt), null);
         }
 
         public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> CompleteAttemptAsync(int id, bool isSuccessful, string? errorMessage)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var attempt = await GetAttemptWithSessionAsync(id);
 
             if (attempt == null)
@@ -101,12 +110,15 @@ namespace RecoveryAPI.Services
             }
 
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, ToDto(attempt), null);
         }
 
         public async Task<(bool Found, string? Error)> DeleteAttemptAsync(int id)
         {
+            await using var transaction = await _context.Database.BeginTransactionAsync();
+
             var attempt = await _context.RecoveryAttempt.FindAsync(id);
 
             if (attempt == null)
@@ -120,7 +132,9 @@ namespace RecoveryAPI.Services
             }
 
             _context.RecoveryAttempt.Remove(attempt);
+
             await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
 
             return (true, null);
         }
