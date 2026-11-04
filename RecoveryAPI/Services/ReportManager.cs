@@ -15,7 +15,7 @@ namespace RecoveryAPI.Services
 
         public async Task<List<DependencyReportDto>> GetDependenciesAsync()
         {
-            return await _context.ServiceDependency.Select(dependency => new DependencyReportDto
+            return await _context.ServiceDependency.AsNoTracking().Select(dependency => new DependencyReportDto
             {
                 Id = dependency.Id,
                 ServiceId = dependency.ServiceId,
@@ -27,38 +27,28 @@ namespace RecoveryAPI.Services
 
         public async Task<List<RecoveryHistoryDto>> GetRecoveryHistoryAsync(int serviceId)
         {
-            return await _context.RecoveryAttempt.Where(attempt => attempt.ServiceId == serviceId).Select(attempt => new RecoveryHistoryDto
+            return await _context.RecoveryAttempt.AsNoTracking().Where(attempt => attempt.RecoverySessionService!.ServiceId == serviceId).OrderBy(attempt => attempt.Id).Select(attempt => new RecoveryHistoryDto
             {
                 Id = attempt.Id,
-                ServiceId = attempt.ServiceId,
-                ServiceName = attempt.Service!.Name,
+                RecoverySessionId = attempt.RecoverySessionService!.RecoverySessionId,
+                ServiceId = attempt.RecoverySessionService.ServiceId,
+                ServiceName = attempt.RecoverySessionService.Service!.Name,
+                Status = attempt.Status,
                 StartedAt = attempt.StartedAt,
                 FinishedAt = attempt.FinishedAt,
-                IsSuccessful = attempt.IsSuccessful
+                ErrorMessage = attempt.ErrorMessage
             }).ToListAsync();
         }
 
         public async Task<List<RecoveryStatisticsDto>> GetRecoveryStatisticsAsync()
         {
-            return await _context.Service.Select(service => new RecoveryStatisticsDto
+            return await _context.Service.AsNoTracking().OrderBy(service => service.Id).Select(service => new RecoveryStatisticsDto
             {
                 ServiceId = service.Id,
                 ServiceName = service.Name,
-                AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id),
-                SuccessfulCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == true),
-                FailedCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id && attempt.IsSuccessful == false)
-            }).ToListAsync();
-        }
-
-        public async Task<List<FailedServiceReportDto>> GetFailedServicesAsync(int minimumCriticality)
-        {
-            return await _context.Service.Where(service => service.Status == ServiceStatus.Failed && service.Criticality >= minimumCriticality).OrderByDescending(service => service.Criticality).ThenBy(service => service.Id).Select(service => new FailedServiceReportDto
-            {
-                ServiceId = service.Id,
-                ServiceName = service.Name,
-                Criticality = service.Criticality,
-                EstimatedRecoverySeconds = service.EstimatedRecoverySeconds,
-                AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.ServiceId == service.Id)
+                AttemptCount = _context.RecoveryAttempt.Count(attempt => attempt.RecoverySessionService!.ServiceId == service.Id),
+                SuccessfulCount = _context.RecoveryAttempt.Count(attempt => attempt.RecoverySessionService!.ServiceId == service.Id && attempt.Status == RecoveryAttemptStatus.Succeeded),
+                FailedCount = _context.RecoveryAttempt.Count(attempt => attempt.RecoverySessionService!.ServiceId == service.Id && attempt.Status == RecoveryAttemptStatus.Failed)
             }).ToListAsync();
         }
     }

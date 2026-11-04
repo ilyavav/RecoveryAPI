@@ -15,14 +15,14 @@ namespace RecoveryAPI.Services
 
         public async Task<List<ServiceDto>> GetServicesAsync()
         {
-            var services = await _context.Service.ToListAsync();
+            var services = await _context.Service.AsNoTracking().ToListAsync();
 
             return services.Select(service => ToDto(service)).ToList();
         }
 
         public async Task<ServiceDto?> GetServiceAsync(int id)
         {
-            var service = await _context.Service.FindAsync(id);
+            var service = await _context.Service.AsNoTracking().FirstOrDefaultAsync(service => service.Id == id);
 
             if (service == null)
             {
@@ -32,32 +32,52 @@ namespace RecoveryAPI.Services
             return ToDto(service);
         }
 
-        public async Task<ServiceDto> AddServiceAsync(Service service)
+        public async Task<ServiceDto> AddServiceAsync(ServiceInputDto input)
         {
+            var service = new Service
+            {
+                Name = input.Name.Trim(),
+                Description = input.Description?.Trim(),
+                DefaultPriority = input.DefaultPriority,
+                DesiredReplicas = input.DesiredReplicas
+            };
+
             _context.Service.Add(service);
             await _context.SaveChangesAsync();
 
             return ToDto(service);
         }
 
-        public async Task<bool> UpdateServiceAsync(Service service)
+        public async Task<(bool Found, bool Conflict, string? Error)> UpdateServiceAsync(int id, ServiceInputDto input)
         {
-            var existingService = await _context.Service.FindAsync(service.Id);
+            var service = await _context.Service.FindAsync(id);
 
-            if (existingService == null)
+            if (service == null)
             {
-                return false;
+                return (false, false, null);
             }
 
-            existingService.Name = service.Name;
-            existingService.Description = service.Description;
-            existingService.Criticality = service.Criticality;
-            existingService.EstimatedRecoverySeconds = service.EstimatedRecoverySeconds;
-            existingService.Status = service.Status;
+            if (service.DesiredReplicas != input.DesiredReplicas)
+            {
+                var hasRunningSession = await _context.RecoverySessionService.AnyAsync(participant => participant.ServiceId == id && participant.RecoverySession!.Status == RecoverySessionStatus.Running);
+
+                if (hasRunningSession)
+                {
+                    return (true, true, "Desired replicas cannot be changed during recovery.");
+                }
+            }
+
+            if (!service.TrySetPriority(input.DefaultPriority) || !service.TrySetDesiredReplicas(input.DesiredReplicas))
+            {
+                return (true, false, "Invalid service settings.");
+            }
+
+            service.Name = input.Name.Trim();
+            service.Description = input.Description?.Trim();
 
             await _context.SaveChangesAsync();
 
-            return true;
+            return (true, false, null);
         }
 
         public async Task<(bool Found, bool Deleted)> DeleteServiceAsync(int id)
@@ -70,10 +90,9 @@ namespace RecoveryAPI.Services
             }
 
             var hasDependencies = await _context.ServiceDependency.AnyAsync(dependency => dependency.ServiceId == id || dependency.DependsOnServiceId == id);
+            var hasParticipants = await _context.RecoverySessionService.AnyAsync(participant => participant.ServiceId == id);
 
-            var hasAttempts = await _context.RecoveryAttempt.AnyAsync(attempt => attempt.ServiceId == id);
-
-            if (hasDependencies || hasAttempts)
+            if (hasDependencies || hasParticipants)
             {
                 return (true, false);
             }
@@ -84,57 +103,28 @@ namespace RecoveryAPI.Services
             return (true, true);
         }
 
-        public async Task<ServiceDto?> MakeServiceFailedAsync(int id)
+        public async Task<(ServiceDto? Service, string? Error)> UpdateObservationAsync(int id, ServiceObservationDto observation)
         {
             var service = await _context.Service.FindAsync(id);
 
             if (service == null)
             {
-                return null;
+                return (null, null);
             }
 
-            service.MakeFailed();
-            await _context.SaveChangesAsync();
-
-            return ToDto(service);
-        }
-
-        public async Task<(ServiceDto? Service, bool Started)> StartRecoveryAsync(int id)
-        {
-            var service = await _context.Service.FindAsync(id);
-
-            if (service == null)
+            if (observation.ObservedAt.Kind != DateTimeKind.Utc)
             {
-                return (null, false);
+                return (ToDto(service), "Observation time must be in UTC.");
             }
 
-            if (!service.TryMakeRecovering())
+            if (!service.TryUpdateObservation(observation.ReadyReplicas, observation.ObservedAt))
             {
-                return (ToDto(service), false);
+                return (ToDto(service), "Observation is invalid, outdated or conflicts with an existing observation.");
             }
 
             await _context.SaveChangesAsync();
 
-            return (ToDto(service), true);
-        }
-
-        public async Task<(ServiceDto? Service, bool Recovered)> CompleteRecoveryAsync(int id)
-        {
-            var service = await _context.Service.FindAsync(id);
-
-            if (service == null)
-            {
-                return (null, false);
-            }
-
-            if (!service.TryMakeRecovered())
-            {
-                return (ToDto(service), false);
-            }
-
-            await _context.SaveChangesAsync();
-
-            return (ToDto(service), true);
+            return (ToDto(service), null);
         }
 
         private static ServiceDto ToDto(Service service)
@@ -144,9 +134,10 @@ namespace RecoveryAPI.Services
                 Id = service.Id,
                 Name = service.Name,
                 Description = service.Description,
-                Criticality = service.Criticality,
-                EstimatedRecoverySeconds = service.EstimatedRecoverySeconds,
-                Status = service.Status
+                DefaultPriority = service.DefaultPriority,
+                DesiredReplicas = service.DesiredReplicas,
+                ReadyReplicas = service.ReadyReplicas,
+                ObservedAt = service.ObservedAt
             };
         }
     }

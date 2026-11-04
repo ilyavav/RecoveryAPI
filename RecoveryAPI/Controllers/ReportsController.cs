@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Dtos;
 using RecoveryAPI.Services;
 
@@ -37,19 +37,6 @@ namespace RecoveryAPI.Controllers
         public async Task<ActionResult<IEnumerable<RecoveryStatisticsDto>>> GetRecoveryStatistics()
         {
             var report = await _reportManager.GetRecoveryStatisticsAsync();
-
-            return Ok(report);
-        }
-
-        [HttpGet("failedServices")]
-        public async Task<ActionResult<IEnumerable<FailedServiceReportDto>>> GetFailedServicesReport([FromQuery] int minimumCriticality = 4)
-        {
-            if (minimumCriticality < 1 || minimumCriticality > 5)
-            {
-                return BadRequest("Minimum criticality must be between 1 and 5.");
-            }
-
-            var report = await _reportManager.GetFailedServicesAsync(minimumCriticality);
 
             return Ok(report);
         }

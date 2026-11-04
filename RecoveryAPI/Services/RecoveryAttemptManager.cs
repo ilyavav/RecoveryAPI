@@ -15,14 +15,14 @@ namespace RecoveryAPI.Services
 
         public async Task<List<RecoveryAttemptDto>> GetAttemptsAsync()
         {
-            var attempts = await _context.RecoveryAttempt.ToListAsync();
+            var attempts = await _context.RecoveryAttempt.AsNoTracking().ToListAsync();
 
             return attempts.Select(attempt => ToDto(attempt)).ToList();
         }
 
         public async Task<RecoveryAttemptDto?> GetAttemptAsync(int id)
         {
-            var attempt = await _context.RecoveryAttempt.FindAsync(id);
+            var attempt = await _context.RecoveryAttempt.AsNoTracking().FirstOrDefaultAsync(attempt => attempt.Id == id);
 
             if (attempt == null)
             {
@@ -32,120 +32,114 @@ namespace RecoveryAPI.Services
             return ToDto(attempt);
         }
 
-        public async Task<(RecoveryAttemptDto Attempt, string? Error)> AddAttemptAsync(RecoveryAttempt attempt)
+        public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> AddAttemptAsync(int participantId)
         {
-            var error = await GetValidationErrorAsync(attempt);
+            var participant = await _context.RecoverySessionService.Include(participant => participant.RecoverySession).FirstOrDefaultAsync(participant => participant.Id == participantId);
 
-            if (error != null)
+            if (participant == null)
             {
-                return (ToDto(attempt), error);
+                return (false, null, null);
             }
+
+            if (participant.RecoverySession!.Status != RecoverySessionStatus.Running || !participant.PriorityAtStart.HasValue)
+            {
+                return (true, null, "Attempts can only be added to a running recovery session.");
+            }
+
+            var attempt = new RecoveryAttempt
+            {
+                RecoverySessionServiceId = participantId
+            };
 
             _context.RecoveryAttempt.Add(attempt);
             await _context.SaveChangesAsync();
 
-            return (ToDto(attempt), null);
+            return (true, ToDto(attempt), null);
         }
 
-        public async Task<(bool Found, string? Error)> UpdateAttemptAsync(RecoveryAttempt attempt)
+        public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> StartAttemptAsync(int id)
         {
-            var existingAttempt = await _context.RecoveryAttempt.FindAsync(attempt.Id);
+            var attempt = await GetAttemptWithSessionAsync(id);
 
-            if (existingAttempt == null)
+            if (attempt == null)
             {
-                return (false, null);
+                return (false, null, null);
             }
 
-            var error = await GetValidationErrorAsync(attempt);
-
-            if (error != null)
+            if (attempt.RecoverySessionService!.RecoverySession!.Status != RecoverySessionStatus.Running)
             {
-                return (true, error);
+                return (true, null, "The recovery session is not running.");
             }
 
-            existingAttempt.ServiceId = attempt.ServiceId;
-            existingAttempt.StartedAt = attempt.StartedAt;
-            existingAttempt.FinishedAt = attempt.FinishedAt;
-            existingAttempt.IsSuccessful = attempt.IsSuccessful;
+            if (!attempt.TryStart())
+            {
+                return (true, null, "Only a pending attempt can be started.");
+            }
 
             await _context.SaveChangesAsync();
 
-            return (true, null);
+            return (true, ToDto(attempt), null);
         }
 
-        public async Task<bool> DeleteAttemptAsync(int id)
+        public async Task<(bool Found, RecoveryAttemptDto? Attempt, string? Error)> CompleteAttemptAsync(int id, bool isSuccessful, string? errorMessage)
+        {
+            var attempt = await GetAttemptWithSessionAsync(id);
+
+            if (attempt == null)
+            {
+                return (false, null, null);
+            }
+
+            if (attempt.RecoverySessionService!.RecoverySession!.Status != RecoverySessionStatus.Running)
+            {
+                return (true, null, "The recovery session is not running.");
+            }
+
+            if (!attempt.TryComplete(isSuccessful, errorMessage))
+            {
+                return (true, null, "The attempt is not running or its completion time is invalid.");
+            }
+
+            await _context.SaveChangesAsync();
+
+            return (true, ToDto(attempt), null);
+        }
+
+        public async Task<(bool Found, string? Error)> DeleteAttemptAsync(int id)
         {
             var attempt = await _context.RecoveryAttempt.FindAsync(id);
 
             if (attempt == null)
             {
-                return false;
+                return (false, null);
+            }
+
+            if (attempt.Status != RecoveryAttemptStatus.Pending)
+            {
+                return (true, "An attempt cannot be deleted after execution has started.");
             }
 
             _context.RecoveryAttempt.Remove(attempt);
             await _context.SaveChangesAsync();
 
-            return true;
+            return (true, null);
         }
 
-        public async Task<(RecoveryAttemptDto? Attempt, RecoveryCompletionResult Result)> CompleteAttemptAsync(int id, bool isSuccessful)
+        public async Task<(bool Found, double? Duration)> GetDurationAsync(int id)
         {
-            var attempt = await _context.RecoveryAttempt.FindAsync(id);
-
-            if (attempt == null)
-            {
-                return (null, RecoveryCompletionResult.None);
-            }
-
-            var result = attempt.Complete(isSuccessful, DateTime.UtcNow);
-
-            if (result != RecoveryCompletionResult.Completed)
-            {
-                return (ToDto(attempt), result);
-            }
-
-            await _context.SaveChangesAsync();
-
-            return (ToDto(attempt), result);
-        }
-
-        public async Task<(bool Found, RecoveryAttemptDurationDto? Duration)> GetDurationAsync(int id)
-        {
-            var attempt = await _context.RecoveryAttempt.FindAsync(id);
+            var attempt = await _context.RecoveryAttempt.AsNoTracking().FirstOrDefaultAsync(attempt => attempt.Id == id);
 
             if (attempt == null)
             {
                 return (false, null);
             }
 
-            var duration = new RecoveryAttemptDurationDto
-            {
-                DurationSeconds = attempt.GetDurationSeconds()
-            };
-
-            return (true, duration);
+            return (true, attempt.GetDurationSeconds());
         }
 
-        private async Task<string?> GetValidationErrorAsync(RecoveryAttempt attempt)
+        private Task<RecoveryAttempt?> GetAttemptWithSessionAsync(int id)
         {
-            var serviceExists = await _context.Service.AnyAsync(service => service.Id == attempt.ServiceId);
-
-            if (!serviceExists)
-            {
-                return "Service was not found.";
-            }
-
-            if (attempt.FinishedAt.HasValue && attempt.FinishedAt.Value < attempt.StartedAt)
-            {
-                return "Finish time cannot be earlier than start time.";
-            }
-
-            if (attempt.FinishedAt.HasValue != attempt.IsSuccessful.HasValue)
-            {
-                return "Finish time and recovery result must either both be provided or both be omitted.";
-            }
-
-            return null;
+            return _context.RecoveryAttempt.Include(attempt => attempt.RecoverySessionService).ThenInclude(participant => participant!.RecoverySession).FirstOrDefaultAsync(attempt => attempt.Id == id);
         }
 
         private static RecoveryAttemptDto ToDto(RecoveryAttempt attempt)
@@ -153,10 +147,11 @@ namespace RecoveryAPI.Services
             return new RecoveryAttemptDto
             {
                 Id = attempt.Id,
-                ServiceId = attempt.ServiceId,
+                RecoverySessionServiceId = attempt.RecoverySessionServiceId,
+                Status = attempt.Status,
                 StartedAt = attempt.StartedAt,
                 FinishedAt = attempt.FinishedAt,
-                IsSuccessful = attempt.IsSuccessful
+                ErrorMessage = attempt.ErrorMessage
             };
         }
     }

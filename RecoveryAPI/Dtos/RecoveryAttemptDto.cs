@@ -1,11 +1,14 @@
-﻿namespace RecoveryAPI.Dtos
+﻿using RecoveryAPI.Models;
+
+namespace RecoveryAPI.Dtos
 {
     public class RecoveryAttemptDto
     {
         public int Id { get; set; }
-        public int ServiceId { get; set; }
-        public DateTime StartedAt { get; set; }
+        public int RecoverySessionServiceId { get; set; }
+        public RecoveryAttemptStatus Status { get; set; }
+        public DateTime? StartedAt { get; set; }
         public DateTime? FinishedAt { get; set; }
-        public bool? IsSuccessful { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

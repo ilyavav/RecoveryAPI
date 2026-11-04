@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using RecoveryAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Dtos;
+using RecoveryAPI.Services;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -18,7 +17,7 @@ public class RecoveryAttemptsController : ControllerBase
 
     // GET: api/RecoveryAttempt
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RecoveryAttemptDto>>> GetRecoveryAttempt()
+    public async Task<ActionResult<IEnumerable<RecoveryAttemptDto>>> GetRecoveryAttempts()
     {
         return await _attemptManager.GetAttemptsAsync();
     }
@@ -27,28 +26,28 @@ public class RecoveryAttemptsController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RecoveryAttemptDto>> GetRecoveryAttempt(int id)
     {
-        var recoveryattempt = await _attemptManager.GetAttemptAsync(id);
+        var attempt = await _attemptManager.GetAttemptAsync(id);
 
-        if (recoveryattempt == null)
+        if (attempt == null)
         {
             return NotFound();
         }
 
-        return recoveryattempt;
+        return attempt;
     }
 
-    // PUT: api/RecoveryAttempt/5
+    // POST: api/RecoveryAttempt
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPut("{id}")]
+    [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> PutRecoveryAttempt(int id, RecoveryAttempt recoveryattempt)
+    public async Task<ActionResult<RecoveryAttemptDto>> PostRecoveryAttempt([FromQuery] int participantId)
     {
-        if (id != recoveryattempt.Id)
+        if (participantId <= 0)
         {
-            return BadRequest();
+            return BadRequest(new ErrorDto { Message = "A valid participant ID is required." });
         }
 
-        var result = await _attemptManager.UpdateAttemptAsync(recoveryattempt);
+        var result = await _attemptManager.AddAttemptAsync(participantId);
 
         if (!result.Found)
         {
@@ -57,26 +56,10 @@ public class RecoveryAttemptsController : ControllerBase
 
         if (result.Error != null)
         {
-            return BadRequest(result.Error);
+            return Conflict(new ErrorDto { Message = result.Error });
         }
 
-        return NoContent();
-    }
-
-    // POST: api/RecoveryAttempt
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-    [HttpPost]
-    [Authorize(Roles = "admin")]
-    public async Task<ActionResult<RecoveryAttemptDto>> PostRecoveryAttempt(RecoveryAttempt recoveryattempt)
-    {
-        var result = await _attemptManager.AddAttemptAsync(recoveryattempt);
-
-        if (result.Error != null)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return CreatedAtAction(nameof(GetRecoveryAttempt), new { id = result.Attempt.Id }, result.Attempt);
+        return CreatedAtAction(nameof(GetRecoveryAttempt), new { id = result.Attempt!.Id }, result.Attempt);
     }
 
     // DELETE: api/RecoveryAttempt/5
@@ -84,42 +67,66 @@ public class RecoveryAttemptsController : ControllerBase
     [Authorize(Roles = "admin")]
     public async Task<IActionResult> DeleteRecoveryAttempt(int id)
     {
-        var deleted = await _attemptManager.DeleteAttemptAsync(id);
+        var result = await _attemptManager.DeleteAttemptAsync(id);
 
-        if (!deleted)
+        if (!result.Found)
         {
             return NotFound();
+        }
+
+        if (result.Error != null)
+        {
+            return Conflict(new ErrorDto { Message = result.Error });
         }
 
         return NoContent();
     }
 
-    [HttpPut("{id}/complete")]
+    [HttpPut("{id}/start")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<RecoveryAttemptDto>> CompleteRecoveryAttempt(int id, [FromQuery] bool isSuccessful)
+    public async Task<ActionResult<RecoveryAttemptDto>> StartRecoveryAttempt(int id)
     {
-        var result = await _attemptManager.CompleteAttemptAsync(id, isSuccessful);
+        var result = await _attemptManager.StartAttemptAsync(id);
 
-        if (result.Attempt == null)
+        if (!result.Found)
         {
             return NotFound();
         }
 
-        if (result.Result == RecoveryCompletionResult.AlreadyCompleted)
+        if (result.Error != null)
         {
-            return Conflict("Recovery attempt is already completed.");
+            return Conflict(new ErrorDto { Message = result.Error });
         }
 
-        if (result.Result == RecoveryCompletionResult.InvalidFinishTime)
+        return Ok(result.Attempt);
+    }
+
+    [HttpPut("{id}/complete")]
+    [Authorize(Roles = "admin")]
+    public async Task<ActionResult<RecoveryAttemptDto>> CompleteRecoveryAttempt(int id, [FromQuery] bool? isSuccessful, [FromQuery] string? errorMessage = null)
+    {
+        if (!isSuccessful.HasValue)
         {
-            return BadRequest("Finish time cannot be earlier than start time.");
+            return BadRequest(new ErrorDto { Message = "The recovery result is required." });
         }
 
-        return result.Attempt;
+        var result = await _attemptManager.CompleteAttemptAsync(id, isSuccessful.Value, errorMessage);
+
+        if (!result.Found)
+        {
+            return NotFound();
+        }
+
+        if (result.Error != null)
+        {
+            return Conflict(new ErrorDto { Message = result.Error });
+        }
+
+        return Ok(result.Attempt);
     }
 
     [HttpGet("{id}/duration")]
-    public async Task<ActionResult<RecoveryAttemptDurationDto>> GetRecoveryAttemptDuration(int id)
+    public async Task<ActionResult<double>> GetRecoveryAttemptDuration(int id)
     {
         var result = await _attemptManager.GetDurationAsync(id);
 
@@ -128,6 +135,11 @@ public class RecoveryAttemptsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(result.Duration);
+        if (!result.Duration.HasValue)
+        {
+            return NoContent();
+        }
+
+        return Ok(result.Duration.Value);
     }
 }

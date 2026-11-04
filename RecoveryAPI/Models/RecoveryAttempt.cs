@@ -5,49 +5,65 @@ namespace RecoveryAPI.Models
     public class RecoveryAttempt
     {
         public int Id { get; set; }
-        public int ServiceId { get; set; }
-        [JsonIgnore]
-        public Service? Service { get; set; }
-        public DateTime StartedAt { get; set; }
+        public int RecoverySessionServiceId { get; set; }
+        public RecoveryAttemptStatus Status { get; set; } = RecoveryAttemptStatus.Pending;
+        public DateTime? StartedAt { get; set; }
         public DateTime? FinishedAt { get; set; }
-        public bool? IsSuccessful { get; set; }
+        public string? ErrorMessage { get; set; }
 
-        public RecoveryCompletionResult Complete(bool isSuccessful, DateTime finishedAt)
+        [JsonIgnore]
+        public RecoverySessionService? RecoverySessionService { get; set; }
+
+        public bool TryStart()
         {
-            if (FinishedAt != null)
+            if (Status != RecoveryAttemptStatus.Pending)
             {
-                return RecoveryCompletionResult.AlreadyCompleted;
+                return false;
             }
 
-            if (finishedAt < StartedAt)
+            StartedAt = DateTime.UtcNow;
+            Status = RecoveryAttemptStatus.Running;
+
+            return true;
+        }
+
+        public bool TryComplete(bool isSuccessful, string? errorMessage = null)
+        {
+            if (Status != RecoveryAttemptStatus.Running || !StartedAt.HasValue)
             {
-                return RecoveryCompletionResult.InvalidFinishTime;
+                return false;
+            }
+
+            var finishedAt = DateTime.UtcNow;
+
+            if (finishedAt < StartedAt.Value)
+            {
+                return false;
             }
 
             FinishedAt = finishedAt;
-            IsSuccessful = isSuccessful;
+            Status = isSuccessful ? RecoveryAttemptStatus.Succeeded : RecoveryAttemptStatus.Failed;
+            ErrorMessage = isSuccessful ? null : errorMessage?.Trim();
 
-            return RecoveryCompletionResult.Completed;
+            return true;
         }
 
         public double? GetDurationSeconds()
         {
-            if (FinishedAt == null)
+            if (!StartedAt.HasValue || !FinishedAt.HasValue)
             {
                 return null;
             }
-            else
-            {
-                return (FinishedAt.Value - StartedAt).TotalSeconds;
-            }
+
+            return (FinishedAt.Value - StartedAt.Value).TotalSeconds;
         }
     }
 
-    public enum RecoveryCompletionResult
+    public enum RecoveryAttemptStatus
     {
-        None = 0,
-        Completed = 1,
-        AlreadyCompleted = 2,
-        InvalidFinishTime = 3
+        Pending = 0,
+        Running = 1,
+        Succeeded = 2,
+        Failed = 3
     }
 }

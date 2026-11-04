@@ -14,7 +14,7 @@ namespace RecoveryAPI.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "10.0.12");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.14");
 
             modelBuilder.Entity("RecoveryAPI.Models.RecoveryAttempt", b =>
                 {
@@ -22,23 +22,83 @@ namespace RecoveryAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ErrorMessage")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime?>("FinishedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool?>("IsSuccessful")
+                    b.Property<int>("RecoverySessionServiceId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RecoverySessionServiceId");
+
+                    b.ToTable("RecoveryAttempt");
+                });
+
+            modelBuilder.Entity("RecoveryAPI.Models.RecoverySession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("FinishedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("StartedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RecoverySession");
+                });
+
+            modelBuilder.Entity("RecoveryAPI.Models.RecoverySessionService", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("FinalObservedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("FinalReadyReplicas")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("PriorityAtStart")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RecoverySessionId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ServiceId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime>("StartedAt")
-                        .HasColumnType("TEXT");
+                    b.Property<int>("TargetReplicas")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceId");
 
-                    b.ToTable("RecoveryAttempt");
+                    b.HasIndex("RecoverySessionId", "ServiceId")
+                        .IsUnique();
+
+                    b.ToTable("RecoverySessionService");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.Service", b =>
@@ -47,20 +107,23 @@ namespace RecoveryAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("Criticality")
+                    b.Property<int>("DefaultPriority")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<double>("EstimatedRecoverySeconds")
-                        .HasColumnType("REAL");
+                    b.Property<int>("DesiredReplicas")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Status")
+                    b.Property<DateTime?>("ObservedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ReadyReplicas")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
@@ -84,18 +147,38 @@ namespace RecoveryAPI.Migrations
 
                     b.HasIndex("DependsOnServiceId");
 
-                    b.HasIndex("ServiceId");
+                    b.HasIndex("ServiceId", "DependsOnServiceId")
+                        .IsUnique();
 
                     b.ToTable("ServiceDependency");
                 });
 
             modelBuilder.Entity("RecoveryAPI.Models.RecoveryAttempt", b =>
                 {
+                    b.HasOne("RecoveryAPI.Models.RecoverySessionService", "RecoverySessionService")
+                        .WithMany()
+                        .HasForeignKey("RecoverySessionServiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RecoverySessionService");
+                });
+
+            modelBuilder.Entity("RecoveryAPI.Models.RecoverySessionService", b =>
+                {
+                    b.HasOne("RecoveryAPI.Models.RecoverySession", "RecoverySession")
+                        .WithMany()
+                        .HasForeignKey("RecoverySessionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("RecoveryAPI.Models.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("RecoverySession");
 
                     b.Navigation("Service");
                 });

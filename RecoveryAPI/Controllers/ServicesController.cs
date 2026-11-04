@@ -1,8 +1,7 @@
-using Microsoft.AspNetCore.Mvc;
-using RecoveryAPI.Models;
 using Microsoft.AspNetCore.Authorization;
-using RecoveryAPI.Services;
+using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Dtos;
+using RecoveryAPI.Services;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -18,7 +17,7 @@ public class ServicesController : ControllerBase
 
     // GET: api/Service
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ServiceDto>>> GetService()
+    public async Task<ActionResult<IEnumerable<ServiceDto>>> GetServices()
     {
         return await _serviceManager.GetServicesAsync();
     }
@@ -41,18 +40,23 @@ public class ServicesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     [Authorize(Roles = "admin")]
-    public async Task<IActionResult> PutService(int id, Service service)
+    public async Task<IActionResult> PutService(int id, ServiceInputDto input)
     {
-        if (id != service.Id)
-        {
-            return BadRequest();
-        }
+        var result = await _serviceManager.UpdateServiceAsync(id, input);
 
-        var updated = await _serviceManager.UpdateServiceAsync(service);
-
-        if (!updated)
+        if (!result.Found)
         {
             return NotFound();
+        }
+
+        if (result.Error != null)
+        {
+            if (result.Conflict)
+            {
+                return Conflict(new ErrorDto { Message = result.Error });
+            }
+
+            return BadRequest(new ErrorDto { Message = result.Error });
         }
 
         return NoContent();
@@ -62,11 +66,11 @@ public class ServicesController : ControllerBase
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDto>> PostService(Service service)
+    public async Task<ActionResult<ServiceDto>> PostService(ServiceInputDto input)
     {
-        var createdService = await _serviceManager.AddServiceAsync(service);
+        var service = await _serviceManager.AddServiceAsync(input);
 
-        return CreatedAtAction(nameof(GetService), new { id = createdService.Id }, createdService);
+        return CreatedAtAction(nameof(GetService), new { id = service.Id }, service);
     }
 
     // DELETE: api/Service/5
@@ -83,59 +87,26 @@ public class ServicesController : ControllerBase
 
         if (!result.Deleted)
         {
-            return Conflict("Service has related dependencies or recovery attempts.");
+            return Conflict(new ErrorDto { Message = "Service has related dependencies or recovery history." });
         }
 
         return NoContent();
     }
 
-    [HttpPut("{id}/fail")]
+    [HttpPut("{id}/observation")]
     [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDto>> MakeServiceFailed(int id)
+    public async Task<ActionResult<ServiceDto>> UpdateObservation(int id, ServiceObservationDto observation)
     {
-        var service = await _serviceManager.MakeServiceFailedAsync(id);
-
-        if (service == null)
-        {
-            return NotFound();
-        }
-
-        return service;
-    }
-
-    [HttpPut("{id}/recovering")]
-    [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDto>> MakeServiceRecovering(int id)
-    {
-        var result = await _serviceManager.StartRecoveryAsync(id);
+        var result = await _serviceManager.UpdateObservationAsync(id, observation);
 
         if (result.Service == null)
         {
             return NotFound();
         }
 
-        if (!result.Started)
+        if (result.Error != null)
         {
-            return Conflict("Recovery can only start for a failed service.");
-        }
-
-        return result.Service;
-    }
-
-    [HttpPut("{id}/recovered")]
-    [Authorize(Roles = "admin")]
-    public async Task<ActionResult<ServiceDto>> MakeServiceRecovered(int id)
-    {
-        var result = await _serviceManager.CompleteRecoveryAsync(id);
-
-        if (result.Service == null)
-        {
-            return NotFound();
-        }
-
-        if (!result.Recovered)
-        {
-            return Conflict("Service is not recovering.");
+            return BadRequest(new ErrorDto { Message = result.Error });
         }
 
         return result.Service;

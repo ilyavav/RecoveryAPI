@@ -5,49 +5,78 @@ namespace RecoveryAPI.Models
     public class Service
     {
         public int Id { get; set; }
+
         [Required]
         public string Name { get; set; } = string.Empty;
+
         public string? Description { get; set; }
+
         [Range(1, 5)]
-        public int Criticality { get; set; }
-        [Range(0.0, double.MaxValue, MinimumIsExclusive = true, ErrorMessage = "Estimated recovery time must be greater than zero.")]
-        public double EstimatedRecoverySeconds { get; set; }
-        [EnumDataType(typeof(ServiceStatus), ErrorMessage = "Invalid service status.")]
-        public ServiceStatus Status { get; set; }
+        public int DefaultPriority { get; set; }
 
-        public void MakeFailed()
-        {
-            Status = ServiceStatus.Failed;
-        }
+        [Range(0, int.MaxValue)]
+        public int DesiredReplicas { get; set; }
 
-        public bool TryMakeRecovered()
+        [Range(0, int.MaxValue)]
+        public int? ReadyReplicas { get; set; }
+
+        public DateTime? ObservedAt { get; set; }
+
+        public bool TrySetPriority(int priority)
         {
-            if (Status != ServiceStatus.Recovering)
+            if (priority < 1 || priority > 5)
             {
                 return false;
             }
 
-            Status = ServiceStatus.Running;
+            DefaultPriority = priority;
+
             return true;
         }
 
-        public bool TryMakeRecovering()
+        public bool TrySetDesiredReplicas(int desiredReplicas)
         {
-            if (Status != ServiceStatus.Failed)
+            if (desiredReplicas < 0)
             {
                 return false;
             }
 
-            Status = ServiceStatus.Recovering;
+            DesiredReplicas = desiredReplicas;
+
             return true;
         }
-    }
 
-    public enum ServiceStatus
-    {
-        Unknown = 0,
-        Running = 1,
-        Failed = 2,
-        Recovering = 3
+        public bool TryUpdateObservation(int readyReplicas, DateTime observedAt)
+        {
+            if (readyReplicas < 0 || observedAt == default)
+            {
+                return false;
+            }
+
+            if (ObservedAt.HasValue && observedAt < ObservedAt.Value)
+            {
+                return false;
+            }
+
+            if (ObservedAt.HasValue && observedAt == ObservedAt.Value)
+            {
+                return ReadyReplicas == readyReplicas;
+            }
+
+            ReadyReplicas = readyReplicas;
+            ObservedAt = observedAt;
+
+            return true;
+        }
+
+        public int? GetMissingReplicas()
+        {
+            if (!ReadyReplicas.HasValue)
+            {
+                return null;
+            }
+
+            return Math.Max(0, DesiredReplicas - ReadyReplicas.Value);
+        }
     }
 }

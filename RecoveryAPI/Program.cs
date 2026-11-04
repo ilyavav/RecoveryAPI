@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RecoveryAPI.Models;
-using Microsoft.EntityFrameworkCore;
 using RecoveryAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +10,8 @@ var connectionString = builder.Configuration.GetConnectionString("RecoveryAPICon
 builder.Services.AddDbContext<RecoveryAPIContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ServiceManager>();
 builder.Services.AddScoped<ServiceDependencyManager>();
+builder.Services.AddScoped<RecoverySessionManager>();
+builder.Services.AddScoped<RecoverySessionServiceManager>();
 builder.Services.AddScoped<RecoveryAttemptManager>();
 builder.Services.AddScoped<ReportManager>();
 builder.Services.AddScoped<AuthManager>();
@@ -17,21 +19,21 @@ builder.Services.AddScoped<AuthManager>();
 
 builder.Services.AddControllers();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidIssuer = AuthOptions.Issuer,
+        ValidateIssuer = true,
+        ValidIssuer = AuthOptions.Issuer,
 
-            ValidateAudience = true,
-            ValidAudience = AuthOptions.Audience,
+        ValidateAudience = true,
+        ValidAudience = AuthOptions.Audience,
 
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = AuthOptions.SigningKey,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = AuthOptions.SigningKey,
 
-            ValidateLifetime = true
-        };
-    });
+        ValidateLifetime = true
+    };
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
