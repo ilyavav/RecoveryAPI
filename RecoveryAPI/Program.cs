@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RecoveryAPI.Models;
-using RecoveryAPI.Services;
+using RecoveryAPI.Managers;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("RecoveryAPIContext") ?? throw new InvalidOperationException("Connection string 'RecoveryAPIContext' not found.");

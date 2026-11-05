@@ -1,6 +1,6 @@
 ﻿using RecoveryAPI.Models;
 
-namespace RecoveryAPI.Services
+namespace RecoveryAPI.Managers
 {
     public class AuthManager
     {

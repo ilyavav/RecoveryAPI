@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecoveryAPI.Dtos;
-using RecoveryAPI.Services;
+using RecoveryAPI.Managers;
 
 namespace RecoveryAPI.Controllers
 {

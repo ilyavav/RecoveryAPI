@@ -2,7 +2,7 @@
 using RecoveryAPI.Dtos;
 using RecoveryAPI.Models;
 
-namespace RecoveryAPI.Services
+namespace RecoveryAPI.Managers
 {
     public class RecoverySessionServiceManager
     {
